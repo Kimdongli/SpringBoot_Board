@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>paging</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .pagination {
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="text-right mb-3">
+        <button class="btn btn-primary" onclick="create()"> 글쓰기</button>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <tr th:each="board: ${boardList}">
+            <td th:text="${board.getId}"></td>
+            <td> <a th:href="@{${board.getId}|(page = ${boardList.number + 1})}" th:text="${board.getTitle()}"></a></td>
+            <td th:text="*{#temporals.format(board.getCreateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        </tr>
+    </table>
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item"><a class="page-link" th:href="@{/board/paging(page=1)}">처음</a></li>
+            <li class="page-item"><a class="page-link" th:href="${boardList.first} ? '#' : @{/board/paging(page=${boardList.number})}">이전</a></li>
+
+            <li th:each="page: ${#numbers.sequence(startPage, endPage)}" th:class="${page == boardList.number + 1} ? 'page-item active' : 'page-item'">
+                <span th:if="${page == boardList.number + 1}" th:text="${page}" class="page-link"></span>
+                <a th:unless="${page == boardList.number + 1}" th:href="@{/board/paging(page=${page})}" th:text="${page}" class="page-link"></a>
+            </li>
+
+            <li class="page-item"><a class="page-link" th:href="${boardList.last} ? '#' : @{/board/paging(page=${boardList.number + 2})}">다음</a></li>
+            <li class="page-item"><a class="page-link" th:href="@{/board/paging(page=${boardList.totalPages})}">마지막</a></li>
+        </ul>
+    </nav>
+</div>
+
+<script>
+    const create = () => {
+        location.href = "/board/create";
+    }
+</script>
+</body>
+</html>
