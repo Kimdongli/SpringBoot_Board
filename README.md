@@ -47,57 +47,58 @@
 
 ### ※ 기능 구현 설명 CURD(view)
 
-__1.InteliJ 실행후 localhost:8080 으로 들어가서 글쓰기를 누릅니다.__
+#### __1.InteliJ 실행후 localhost:8080 으로 들어가서 글쓰기를 누릅니다.__
 
 <div class="test_image">
   <img src="./image/1.png">
 </div><br>
 
-#### MySQL
+##### MySQL
 
 <div class="test_image">
   <img src="./image/1-1.png">
 </div><br>
 
-__2. Title,Contents작성후 File까지 첨부하고(File 첨부는 null값이여도 상관없습니다.)__
+#### __2. Title,Contents작성후 File까지 첨부하고(File 첨부는 null값이여도 상관없습니다.)__
 
 <div class="test_image">
   <img src="./image/2.png">
 </div><br>
 
 - __게시물 작성후 데이터 베이스에 Board,File 정보가 저장된것을 확인할수 있습니다.__
-#### MySQL(Board)
+
+##### MySQL(Board)
 
 <div class="test_image">
   <img src="./image/1-2.png">
 </div><br>
 
-#### MySQL(File)
+##### MySQL(File)
 
 <div class="test_image">
   <img src="./image/1-3.png">
 </div><br>
 
-__3.그러면 자동으 게시판으로 이동후 게시판 으로 들어가면__
+#### __3.그러면 자동으 게시판으로 이동후 게시판 으로 들어가면__
 
 <div class="test_image">
   <img src="./image/3.png">
 </div><br>
 
-__4.게시판 내부 뷰__
+#### __4.게시판 내부 뷰__
 
 <div class="test_image">
   <img src="./image/4.png">
 </div><br>
 
-__5.게시판 목록 기능__
+#### __5.게시판 목록 기능__
 - __게시판 목록버튼을 클릭하면 게시판으로 이동합니다.__
 
 <div class="test_image">
   <img src="./image/3.png">
 </div><br>
 
-__6.게시판 수정기능__
+#### __6.게시판 수정기능__
 
 <div class="test_image">
   <img src="./image/8.png">
@@ -109,7 +110,7 @@ __6.게시판 수정기능__
   <img src="./image/9.png">
 </div><br>
 
-#### MySQL
+##### MySQL
 
 - __SQL에도 잘저장 되어있는것을 확인할수 있습니다.__
 
@@ -117,14 +118,14 @@ __6.게시판 수정기능__
   <img src="./image/1-4.png">
 </div><br>
 
-__7. 게시판 파일 다운로드__
+#### __7. 게시판 파일 다운로드__
 - __파일 다운로드를 누르면 제가등록한 파일이 다운로드 되는것을 확인할수 있습니다.__
 
 <div class="test_image">
   <img src="./image/10.png">
 </div><br>
 
-__8.게시판 삭제기능__
+#### __8.게시판 삭제기능__
 
 - __삭제버튼을 누르면 게시판으로 넘어가면서 삭제된걸 확인할수 있습니다.__
 
@@ -134,7 +135,7 @@ __8.게시판 삭제기능__
 
 
 
-#### MySQL(Board)
+##### MySQL(Board)
 
 - __뷰에서 삭제버튼을 누른후 SQL에도 File,Board가 삭제된것을 확인할수있습니다.__
 
@@ -142,19 +143,19 @@ __8.게시판 삭제기능__
   <img src="./image/1-5.png">
 </div><br>
 
-#### MySQL(File)
+##### MySQL(File)
 <div class="test_image">
   <img src="./image/1-6.png">
 </div><br>
 
-__9.게시판 댓글기능__
+#### __9.게시판 댓글기능__
 - __댓글 작성자와 내용을 입력후 댓글작성 버튼을 누르면 현재화면처럼 댓글이 등록되어있는것을 확인할수 있습니다.__
 
 <div class="test_image">
   <img src="./image/12.png">
 </div><br>
 
-#### MySQL
+##### MySQL
 
 - __댓글 작성한것이 SQL에 잘 저장되어있는것을 확인할수 있습니다.__
 
@@ -162,14 +163,14 @@ __9.게시판 댓글기능__
   <img src="./image/1-7.png">
 </div><br>
 
-__10.게시판 댓글삭제__
+#### __10.게시판 댓글삭제__
 - __댓글 작성이 되어있고 그 댓글을 삭제버튼을 누를시 즉시 삭제됩니다.__
 
 <div class="test_image">
   <img src="./image/13.png">
 </div><br>
 
-#### MySQL
+##### MySQL
 
 - __댓글 삭제후 SQL에도 사라진것을 확인할수 있습니다.__
 
