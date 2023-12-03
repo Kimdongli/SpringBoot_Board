@@ -8,7 +8,7 @@
 - __Spring Data JPA__
 - __Thymleaf__
 
-  ---
+---
 
 ### ※ 게시판 주요기능(CURD)
 
