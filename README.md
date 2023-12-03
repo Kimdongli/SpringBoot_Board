@@ -58,7 +58,7 @@
 
 ---
 
-### ※ 기능 구현 설명 CURD(view)
+### ※ 기능 구현 설명 CURD
 
 #### __1.InteliJ 실행후 [localhost:8080](http://localhost:8080/) 으로 들어가서 글쓰기를 누릅니다.__
 
