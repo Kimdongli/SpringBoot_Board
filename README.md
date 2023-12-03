@@ -97,7 +97,7 @@
   <img src="./image/1-3.png">
 </div><br>
 
-#### __3.그러면 자동으 게시판으로 이동후 게시판 으로 들어가면__
+#### __3.게시판으로 이동후 게시판 내부로 들어가면__
 
 <div class="test_image">
   <img src="./image/3.png">
