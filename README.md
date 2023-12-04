@@ -130,7 +130,7 @@
 
 ##### MySQL
 
-- __SQL에도 잘저장 되어있는것을 확인할수 있습니다.__
+- __SQL에도 잘 저장 되어있는것을 확인할수 있습니다.__
 
 <div class="test_image">
   <img src="./image/1-4.png">
