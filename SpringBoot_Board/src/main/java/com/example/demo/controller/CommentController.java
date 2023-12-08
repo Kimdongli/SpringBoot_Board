@@ -54,12 +54,7 @@ public class CommentController {
         return new ResponseEntity<>(commentDTOS, HttpStatus.OK);
     }
 
-    @GetMapping("/update/{id}")
-    public String updateForm(@PathVariable Long id, Model model) {
-        Optional<Comment> commentOptional = commentService.findById(id);
-        model.addAttribute("commentDTO", commentOptional);
-        return "update";
-    }
+
     @PutMapping("/edit/{id}")
     public ResponseEntity edit(@PathVariable Long id, @RequestBody CommentDTO commentDTO){
         Comment editedcomment =commentService.edit(commentDTO);
