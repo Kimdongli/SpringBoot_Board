@@ -101,7 +101,7 @@
 ### 게시물
 1. 메인화면(/) [localhost:8080](http://localhost:8080/)  
 <div class="centered-image">
-<img src="./image/1.png">
+  <img src="./image/1.png">
 </div><br>
 
 
@@ -109,7 +109,7 @@
 \-한 페이지 게시글 5개
 \-최대 3페이지씩
 <div class="centered-image">
-  <img src="./image/3.png">
+  <img src="./image/11.png">
 </div><br>
 
 
