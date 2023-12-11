@@ -55,12 +55,11 @@ public class CommentController {
     }
 
 
-    @PutMapping("/edit/{id}")
-    public ResponseEntity edit(@PathVariable Long id, @RequestBody CommentDTO commentDTO){
-        Comment editedcomment =commentService.edit(commentDTO);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.TEXT_PLAIN);
-        return new ResponseEntity<>("댓글이 수정 되었습니다.",headers,HttpStatus.OK);
+    @PutMapping("/update/{id}")
+    public ResponseEntity update(@ModelAttribute CommentDTO commentDTO){
+        commentService.update(commentDTO);
+
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/delete/{id}")

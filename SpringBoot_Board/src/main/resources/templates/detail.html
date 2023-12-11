@@ -24,7 +24,7 @@
         </tr>
         <tr>
             <th>date</th>
-            <td th:text="${board.getCreateTime}"></td>
+            <td th:text="${#temporals.format(board.getCreateTime, 'yyyy-MM-dd HH:mm')}"></td>
         </tr>
         <tr>
             <th>contents</th>
@@ -32,7 +32,6 @@
         </tr>
     </table>
     <div class="mb-3">
-
         <div th:if="${files != null}">
             <h3>첨부 파일</h3>
             <ul>
@@ -43,7 +42,6 @@
                 </li>
             </ul>
         </div>
-
 
         <button onclick="listReq()" class="btn btn-secondary">목록</button>
         <button onclick="updateReq()" class="btn btn-primary">수정</button>
@@ -69,25 +67,10 @@
             <tr th:each="comment: ${commentList}">
                 <td th:text="${comment.id}"></td>
                 <td th:text="${comment.writer}"></td>
-                <td id="comment-text-${comment.id}" th:text="${comment.contents}"></td>
+                <td th:text="${comment.contents}"></td>
                 <td>
                     <button class="btn btn-primary" onclick="showUpdateForm(${comment.id}, '${comment.writer}', '${comment.contents}')">수정</button>
                     <button class="btn btn-danger" onclick="'deleteComment(' + ${comment.id} + ')';">삭제</button>
-                    <div id="update-form-${comment.id}" style="display: none;">
-                        <h3>댓글 수정</h3>
-                        <input type="hidden" id="update-comment-id-${comment.id}">
-                        <input type="text" id="update-comment-writer-${comment.id}" placeholder="작성자">
-                        <input type="text" id="update-comment-contents-${comment.id}" placeholder="내용">
-                        <button class="btn btn-primary" onclick="updateComment(${comment.id})">수정 완료</button>
-                    </div>
-                </td>
-            </tr>
-<!--                <td th:text="${comment.contents}"></td>-->
-                <td>
-<!--                    <button class="btn btn-primary" onclick="editComment(${comment.id})">수정</button>-->
-                    <button class="btn btn-primary" onclick="showUpdateForm(${comment.id}, '${comment.writer}', '${comment.contents}')">수정</button>
-                    <button class="btn btn-danger" onclick="'deleteComment(' + ${comment.id} + ')';">삭제</button>
-                </td>
             </tr>
         </table>
     </div>
@@ -143,45 +126,29 @@
         });
     }
 
-// 댓글 수정 함수
-const showUpdateForm = (id, writer, contents) => {
-    console.log('showUpdateForm is called with id:', id, 'writer:', writer, 'contents:', contents);
-    let updateCommentIdElement = document.getElementById('update-comment-id-' + id);
-    let updateCommentWriterElement = document.getElementById('update-comment-writer-' + id);
-    let updateCommentContentsElement = document.getElementById('update-comment-contents-' + id);
-    let updateFormElement = document.getElementById('update-form-' + id);
-    if (!updateCommentIdElement || !updateCommentWriterElement || !updateCommentContentsElement || !updateFormElement) {
-        console.error('Cannot find one or more elements');
-        return;
-    }
-     updateCommentIdElement.value = id;
-    updateCommentWriterElement.value = writer;
-    updateCommentContentsElement.value = contents;
-    updateFormElement.style.display = 'block';
-};
+ const updateComment = (i) => {
+        const jsContents = document.getElementById("button" + i).value;
+        console.log("내용: ", jsContents);
+        const jsId = i;
+        $.ajax({
+            // 요청방식: post, 요청주소: /comment/save, 요청데이터: 작성자, 작성내용, 게시글번호
+            type: "get",
+            url: "/comment/update",
+            data: {
+                "id": jsId,
+                "contents": jsContents
+            },
+            success: function (res) {
+                console.log("요청승인", res);
+                getCommentList();
+            },
+            error: function (err) {
+                console.log("요청실패", err)
+            }
+        });
+     }
 
-const updateComment = (id) => {
-    const writer = document.getElementById('update-comment-writer-' + id).value;
-    const contents = document.getElementById('update-comment-contents-' + id).value;
 
-    $.ajax({
-        type: "POST",
-        url: "/comment/update",
-        data: {
-            "id": id,
-            "writer": writer,
-            "contents": contents
-        },
-        success: function (res) {
-            console.log("댓글 수정 성공", res);
-            document.getElementById('update-form-' + id).style.display = 'none';
-            loadComments();
-        },
-        error: function (err) {
-            console.error("댓글 수정 실패", err);
-        }
-    });
-};
     function loadComments() {
     const boardId = [[${board.id}]];
     $.ajax({

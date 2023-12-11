@@ -64,11 +64,12 @@ public class CommentService {
     }
 
     @Transactional
-    public Comment edit(CommentDTO commentDTO){
+    public void update(CommentDTO commentDTO){
         Optional<Comment> commentOptional = commentRepository.findById(commentDTO.getId());
-        Comment comment = commentOptional.get();
-        comment.updateFromDTO(commentDTO);
-        return commentRepository.save(comment);
+        if (commentOptional.isPresent()){
+            Comment comment = commentOptional.get();
+            comment.updateFromDTO(commentDTO);
+        }
     }
 
 }
