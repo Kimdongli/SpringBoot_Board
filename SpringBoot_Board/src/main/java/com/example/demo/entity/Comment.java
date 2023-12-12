@@ -39,14 +39,8 @@ public class Comment {
         this.writer = writer;
     }
 
-    public Comment toUpdate(Board board) {
-        Comment comment = new Comment();
-        this.board = board;
-        return comment;
-    }
 
     public void updateFromDTO(CommentDTO commentDTO){
-        this.writer = commentDTO.getWriter();
         this.contents = commentDTO.getContents();
     }
 }

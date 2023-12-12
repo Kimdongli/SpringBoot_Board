@@ -54,11 +54,9 @@ public class CommentController {
         return new ResponseEntity<>(commentDTOS, HttpStatus.OK);
     }
 
-
     @PutMapping("/update/{id}")
     public ResponseEntity update(@ModelAttribute CommentDTO commentDTO){
         commentService.update(commentDTO);
-
         return ResponseEntity.ok().build();
     }
 
