@@ -62,21 +62,21 @@
 ### 게시물
 1. 메인화면(/) [localhost:8080](http://localhost:8080/)  
 <div class="centered-image">
-  <img src="./image/1.png">
+  <img src="./image/1.png" with="350" height="350">
 </div><br>
 
 2. 게시판 페이지(/board, /board/paging)  
 \-한 페이지 게시글 5개
 \-최대 3페이지씩
 <div class="centered-image">
-  <img src="./image/11.png">
+  <img src="./image/11.png" >
 </div><br>
 
 
 3. 게시물 작성(/board/save)  
   \- 파일첨부(단일/다중)
 <div class="centered-image">
-  <img src="./image/2.png">
+  <img src="./image/2.png" >
 </div><br>
 
 4. 게시물 조회(/board/{id})
