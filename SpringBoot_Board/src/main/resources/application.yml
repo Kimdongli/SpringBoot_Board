@@ -23,7 +23,13 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: create
-
+      properties:
+        hibernate:
+          format_sql: true
+        default_batch_fetch_size: 100
+      output:
+        ansi:
+          enabled: always
   h2:
     console:
       enabled: true

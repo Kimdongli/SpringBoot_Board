@@ -1,0 +1,89 @@
+## User연동
+
+- 유저 연동을위해서 user(유저정보),error(에러),security(보안 기능),utils(유틸리티)패키지는
+저번프로젝트 하면서 만들어 놨던것을 바탕으로 만들었다.
+
+### User
+```java
+@Getter
+@NoArgsConstructor
+@Entity
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(length = 100, nullable = false)
+    private String email;
+
+    @Column(length = 100, nullable = false)
+    private String password;
+
+    @Column(length = 50)
+    @Convert(converter = StringArrayConverter.class)
+    private List<String> roles = new ArrayList<>();
+
+    // 연관관계 맵핑(Board)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Board> boards = new LinkedList<>();
+
+    // 연관관계 맵핑(Comment)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Comment> comments = new LinkedList<>();
+
+    @Builder
+    public User(Long id, String email, String password, String access_token, String refresh_token, List<String> roles, List<Board> boards, List<Comment> comments) {
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.access_token = access_token;
+        this.refresh_token = refresh_token;
+        this.roles = roles;
+        this.boards = boards;
+        this.comments = comments;
+    }
+    public void setAccess_token(String access_token) {
+        this.access_token = access_token;
+    }
+
+    public void setRefresh_token(String refresh_token) {
+        this.refresh_token = refresh_token;
+    }
+```
+- Board와 Comment 연동시키기위해 연관관계맵핑을 하였습니다.
+
+### Board,Comment
+```java
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "user_id")
+private User user;
+```
+- User에도 했듯이 Board와 Comment 에도 연관관계 맵핑.
+- index.html에 로그인,회원가입폼 추가
+
+### User
+```java
+@Column(length = 255)
+private String access_token;
+
+@Column(length = 255)
+private String refresh_token;
+
+@Column(length = 100)
+private String platform;
+```
+- 추후에 카카오도 구현예정이라 platform추가하였고 세션관리를 위해 access,refresh토큰 함수를따로만들었다.
+
+### application.yml
+
+```yml
+properties:
+     hibernate:
+       format_sql: true
+     default_batch_fetch_size: 100
+ output:
+   ansi:
+     enabled: always
+```
+
+- 설정을 적용하면 Hibernate의 SQL 쿼리 로깅, 데이터 가져오기 성능, 그리고 로그 메시지의 가독성이 개선됩니다.

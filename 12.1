@@ -1,0 +1,60 @@
+# 12.01
+## Comment (Delete,Correction) function
+```JavaScript
+function editComment(commentId) {
+        const commentElement = $("#comment-text-" + commentId);
+        const commentContents = commentElement.text();
+
+        $("#edit-content-" + commentId).val(commentContents);
+        $("#edit-section-" + commentId).show();
+    }
+
+        function completeEdit(commentId) {
+            const editedContents = $("#edit-content-" + commentId).val();
+
+            if (!editedContents.trim()) {
+                alert('댓글 내용을 입력해주세요.');
+                return;
+            }
+
+            const data = {
+                'contents': editedContents,
+            };
+
+            $.ajax({
+                url: '/comment/edit/' + commentId,
+                type: 'PUT',
+                data: JSON.stringify(data),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function(result) {
+                    console.log("댓글 수정 성공");
+                    loadComments();
+                    $("#edit-section-" + commentId).hide();
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
+```
+- Delete funciton
+```java
+@Transactional
+   public void delete(Long id){
+       commentRepository.deleteById(id);
+   }
+```
+```java
+@DeleteMapping("/delete/{id}")
+   public ResponseEntity delete(@PathVariable Long id){
+       commentService.delete(id);
+       return new ResponseEntity<>("댓글이 삭제 되었습니다.",HttpStatus.OK);
+   }
+```
+
+- Board와 마찬가지로 Delete기능을 만들었는데 코드는 복잡한것이 없었지만 3시간정도 계속
+삭제기능이 안되는걸 못찾고있었다가. commentService에 @Transactional 기능을 넣지않아 계속
+삭제가 안되었던걸 알아서 현재는 Delete기능이 잘작동합니다.
+
+-Correction

@@ -1,0 +1,124 @@
+# 11.28
+## Board.java
+
+```BoardController.java
+// ** 데이터 변경해야 되는곳이면 별도로 함수위에 트렌젝션을 넣는다.
+@Transactional
+   public void save(BoardDTO dto, MultipartFile[] files) throws IOException {
+
+       Path uploadPath = Paths.get(filePath);
+
+       // ** 만약 경로가 없다면... 경로 생성.
+       if(!Files.exists(uploadPath)) {
+           Files.createDirectories(uploadPath);
+       }
+
+       // ** 게시글 DB에 저장 후 pk을 받아옴.
+       Long id = boardRepository.save(dto.toEntity()).getId();
+       Board board = boardRepository.findById(id).get();
+
+       // ** 파일 정보 저장.
+       for(MultipartFile file : files) {
+           // ** 파일명 추출
+           String originalFileName = file.getOriginalFilename();
+
+           // ** 확장자 추출
+           String formatType = originalFileName.substring(
+                   originalFileName.lastIndexOf("."));
+
+           // ** UUID 생성
+           String uuid = UUID.randomUUID().toString();
+
+           // ** 경로 지정
+           // ** C:/Users/G/Desktop/green/Board Files/{uuid + originalFileName}
+           String path = filePath + uuid + originalFileName;
+
+           // ** 경로에 파일을 저장.  DB 아님
+           file.transferTo( new File(path) );
+
+           BoardFile boardFile = BoardFile.builder()
+                   .filePath(filePath)
+                   .fileName(originalFileName)
+                   .uuid(uuid)
+                   .fileType(formatType)
+                   .fileSize(file.getSize())
+                   .board(board)
+                   .build();
+
+           fileRepository.save(boardFile);
+       }
+   }
+  ```
+
+
+
+- 게시글 DB에 저장 후 PK를 받아온후
+- builder: 객체에는 파일 경로(filePath), 파일명(originalFileName), UUID, 파일 타입(formatType), 파일 크기(file.getSize()),
+그리고 방금 데이터베이스에서 조회한 Board 객체를 설정합니다.
+
+- for문안에는 file이 null이면 들어오면 안된다.(예외처리 작성 필수!!)
+
+
+```java
+th:href="@{/download/{uuid}/{filename}(uuid=${file.uuid}, filename=${file.fileName})}"
+```
+- /download/{uuid}/{filename} 여기위치에 이동한다.
+
+```java
+@GetMapping("/download/{uuid}/{fileName}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String uuid,
+                                                 @PathVariable String fileName){
+        Path filePath = Paths.get("C:/Users/G/Desktop/green/Board Files/"+ uuid +fileName);
+
+        try{
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if(resource.exists() || resource.isReadable())
+                return ResponseEntity.ok()
+                        .header("Content-Disposition",
+                                "attachment; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
+            else {
+                return ResponseEntity.notFound().build();
+            }
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
+
+    }
+```
+- ResponseEntity<Resource> downloadFile(@PathVariable String uuid, @PathVariable String fileName):
+이 메서는 파일 다운로하는 작업 수행하고, 결과를 ResponseEntity<Resource> 타입으로 반환합니다.
+@PathVariable 어노테이션은 URL 경로의 파라미터를 메서드의 인자로 매핑하는 역할을 합니다.
+
+- Paths.get("C:/Users/G/Desktop/green/Board Files/" +uuid +fileName) : 이 코드는 다운로드할 파일 경로를 설
+경로 디렉토리 URL에서 받은 uuid fileName을 합쳐 만듭니다.
+
+- Resource resource = new UrlResource(filePath.toUri()) : 이 코드는 파일 경로를 URI로 변환한 후,
+ 이를 이용해 UrlResource 객체를 생성합니다. UrlResource는 Spring에서 제공하는 인터페이스로서,
+ 파일과 같은 리소스를 처리하는 기능을 제공합니다.
+
+ - ResponseEntity.ok().header("Content-Disposition", "attachment; filename=\"" +
+  resource.getFilename() + "\"").body(resource) :  코드는 HTTP 응답을 생성하고, 응답 헤더와 본문을 설정합니다. "Content-Disposition" 헤더는 파일을 다운로드할 때 파일명을 지정하는 역할을 합니다. 본문에는 파일의 내용이 들어갑니다.
+
+```java
+List<BoardFile> byBoardFiles = fileRepository.findByBoardId(id);
+       model.addAttribute("files",byBoardFiles );
+```
+
+- 파일중에 보드 아이를 검사해서 모든 파일을 들고온다.
+
+```java
+List<BoardFile> boardFiles = fileRepository.findByBoardId(id);
+
+        for (BoardFile file : boardFiles) {
+            File targetFile = new File(file.getFilePath() + file.getUuid() + file.getFileName());
+            if (targetFile.exists()) {
+                targetFile.delete();
+            }
+            fileRepository.delete(file);
+        }
+```
+
+- 현재 서버 경로에 파일이 저장이되어 많은 파일을 저장시 과부화가 올수있으므로 게시판 삭제를 한다면 같이 삭제하게
+만드는 기능이다.
