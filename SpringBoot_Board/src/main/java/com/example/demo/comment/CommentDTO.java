@@ -1,8 +1,7 @@
-package com.example.demo.DTO;
+package com.example.demo.comment;
 
 
-import com.example.demo.entity.Board;
-import com.example.demo.entity.Comment;
+import com.example.demo.board.Board;
 import lombok.*;
 
 @Setter

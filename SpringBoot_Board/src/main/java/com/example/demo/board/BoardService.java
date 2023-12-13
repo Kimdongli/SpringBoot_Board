@@ -1,13 +1,11 @@
-package com.example.demo.service;
+package com.example.demo.board;
 
-import com.example.demo.DTO.BoardDTO;
-import com.example.demo.DTO.FileDTO;
-import com.example.demo.entity.Board;
-import com.example.demo.entity.BoardFile;
-import com.example.demo.repository.BoardRepository;
-import com.example.demo.repository.FileRepository;
+import com.example.demo.board.BoardDTO;
+import com.example.demo.board.Board;
+import com.example.demo.file.BoardFile;
+import com.example.demo.board.BoardRepository;
+import com.example.demo.file.FileRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,8 +18,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;

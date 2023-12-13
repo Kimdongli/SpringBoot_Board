@@ -1,10 +1,7 @@
-package com.example.demo.controller;
+package com.example.demo.board;
 
-import com.example.demo.DTO.BoardDTO;
-
-import com.example.demo.entity.BoardFile;
-import com.example.demo.repository.FileRepository;
-import com.example.demo.service.BoardService;
+import com.example.demo.file.BoardFile;
+import com.example.demo.file.FileRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,6 +48,23 @@ public class BoardController {
         return "paging";
     }
 
+    @GetMapping("/{id}")
+    public  String paging(@PathVariable Long id, Model model, @PageableDefault(page = 1)Pageable pageable){
+
+
+        BoardDTO dto = boardService.findById(id);
+
+        model.addAttribute("board", dto);
+        model.addAttribute("page", pageable.getPageNumber());
+
+        // ** 파일들중에 보드 아이디를 검사해서 들고온다
+        List<BoardFile> byBoardFiles = fileRepository.findByBoardId(id);
+        model.addAttribute("files",byBoardFiles );
+
+
+        return "detail";
+    }
+
     //** Update
     @PostMapping("/save")
     public String save(@ModelAttribute BoardDTO boardDTO,
@@ -77,23 +91,6 @@ public class BoardController {
     }
 
     //목록 읽어오는기능
-    @GetMapping("/{id}")
-    public  String paging(@PathVariable Long id, Model model, @PageableDefault(page = 1)Pageable pageable){
-
-
-        BoardDTO dto = boardService.findById(id);
-
-        model.addAttribute("board", dto);
-        model.addAttribute("page", pageable.getPageNumber());
-
-        // ** 파일들중에 보드 아이디를 검사해서 들고온다
-        List<BoardFile> byBoardFiles = fileRepository.findByBoardId(id);
-        model.addAttribute("files",byBoardFiles );
-
-
-        return "detail";
-    }
-
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id){

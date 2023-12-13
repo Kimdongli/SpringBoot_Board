@@ -1,5 +1,6 @@
-package com.example.demo.entity;
+package com.example.demo.file;
 
+import com.example.demo.board.Board;
 import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Getter;

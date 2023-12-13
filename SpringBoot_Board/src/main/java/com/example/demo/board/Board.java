@@ -1,6 +1,8 @@
-package com.example.demo.entity;
+package com.example.demo.board;
 
-import com.example.demo.DTO.BoardDTO;
+import com.example.demo.file.BoardFile;
+import com.example.demo.comment.Comment;
+import com.example.demo.user.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,6 +42,10 @@ public class Board {
     // 최근 수정 시간
     private LocalDateTime updateTime;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
     // ** 1:다
     // ** 소유 & 비소유
     // ** cascade = CascadeType.REMOVE : 소유한쪽에서 데이터를 지웠을때 가지고있을필요없을때 자동으로 지운다.
@@ -64,9 +70,9 @@ public class Board {
 
     public void updateFromDTO(BoardDTO boardDTO){
         // ** 모든 변경 사항을 셋팅.
-
         this.title= boardDTO.getTitle();
         this.contents = boardDTO.getContents();
+        this.updateTime = LocalDateTime.now();
     }
 
 }

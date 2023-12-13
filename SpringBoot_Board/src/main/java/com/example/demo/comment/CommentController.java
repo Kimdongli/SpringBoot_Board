@@ -1,19 +1,12 @@
-package com.example.demo.controller;
+package com.example.demo.comment;
 
-import com.example.demo.DTO.CommentDTO;
-import com.example.demo.entity.Comment;
-import com.example.demo.service.CommentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller

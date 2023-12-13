@@ -1,16 +1,14 @@
-package com.example.demo.service;
+package com.example.demo.comment;
 
-import com.example.demo.DTO.BoardDTO;
-import com.example.demo.DTO.CommentDTO;
-import com.example.demo.entity.Board;
-import com.example.demo.entity.Comment;
-import com.example.demo.repository.BoardRepository;
-import com.example.demo.repository.CommentRepository;
+import com.example.demo.comment.CommentDTO;
+import com.example.demo.board.Board;
+import com.example.demo.comment.Comment;
+import com.example.demo.board.BoardRepository;
+import com.example.demo.comment.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
