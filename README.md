@@ -66,7 +66,7 @@
 </div><br>
 
 2. 게시판 페이지(/board, /board/paging)  
-\-한 페이지 게시글 5개
+\-한 페이지 게시글 5개  
 \-최대 3페이지씩
 <div class="centered-image">
   <img src="./image/11.png" >
