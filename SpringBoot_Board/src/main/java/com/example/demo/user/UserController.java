@@ -44,8 +44,8 @@ public class UserController {
 
         String jwt = userService.login(requestDTO);
 
-        HttpSession httpSession = request.getSession(true);
-        httpSession.setAttribute(SessionConst.LOGIN_MEMBER, jwt);
+        // HttpSession httpSession = request.getSession(true);
+        // httpSession.setAttribute(SessionConst.LOGIN_MEMBER, jwt);
         return ResponseEntity.ok().header(JwtTokenProvider.HEADER, jwt)
                 .body(ApiUtils.success(null));
     }
