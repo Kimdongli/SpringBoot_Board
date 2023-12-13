@@ -31,6 +31,9 @@ public class User {
     @Column(length = 255)
     private String refresh_token;
 
+    @Column(length = 100)
+    private String platform;
+
     @Column(length = 50)
     @Convert(converter = StringArrayConverter.class)
     private List<String> roles = new ArrayList<>();
@@ -42,13 +45,14 @@ public class User {
     private List<Comment> comments = new LinkedList<>();
 
     @Builder
-    public User(Long id, String email, String password, String access_token, String refresh_token, List<String> roles, List<Board> boards, List<Comment> comments) {
+    public User(Long id, String email, String password, String access_token, String refresh_token, List<String> roles,String platform, List<Board> boards, List<Comment> comments) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.access_token = access_token;
         this.refresh_token = refresh_token;
         this.roles = roles;
+        this.platform = platform;
         this.boards = boards;
         this.comments = comments;
     }

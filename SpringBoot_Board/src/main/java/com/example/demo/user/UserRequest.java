@@ -44,11 +44,22 @@ public class UserRequest {
             @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@#$%^&+=!~`<>,./?;:'\"\\[\\]{}\\\\()|_-])\\S*$", message = "영문, 숫자, 특수문자가 포함되어야하고 공백이 포함될 수 없습니다.")
                 private String password;
 
+            @NotEmpty
+            private String access_token;
+
+            @NotEmpty
+            private String refresh_token;
+
+            @NotEmpty
+            private String platform;
                 public User toEntity() {
                         return User.builder()
                                 .email(this.email)
                                 .password(this.password)
                                 .roles(Collections.singletonList("RoLE_USER"))
+                                .access_token(null)
+                                .refresh_token(null)
+                                .platform(platform)
                                 .build();
                 }
         }

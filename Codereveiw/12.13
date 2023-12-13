@@ -3,6 +3,7 @@
 - 유저 연동을위해서 user(유저정보),error(에러),security(보안 기능),utils(유틸리티)패키지는
 저번프로젝트 하면서 만들어 놨던것을 바탕으로 만들었다.
 
+- join.html / login.html 추가
 ### User
 ```java
 @Getter
@@ -71,11 +72,47 @@ private String refresh_token;
 
 @Column(length = 100)
 private String platform;
+
+@Builder
+   public User(Long id, String email, String password, String name, List<String> roles, String access_token, String refresh_token, String platform, List<Board> boards, List<Comment> comments) {
+       this.id = id;
+       this.email = email;
+       this.password = password;
+       this.name = name;
+       this.roles = roles;
+       this.access_token = access_token;
+       this.refresh_token = refresh_token;
+       this.platform = platform;
+       this.boards = boards;
+       this.comments = comments;
+   }
 ```
-- 추후에 카카오도 구현예정이라 platform추가하였고 세션관리를 위해 access,refresh토큰 함수를따로만들었다.
+- 추후에 카카오도 구현예정이라 platform추가하였고 세션관리를 위해 access,refresh토큰 함수를따로만들었다.(Builder에도 추가)
 
+### UserRequest
+```java
+@NotEmpty
+private String access_token;
+
+@NotEmpty
+private String refresh_token;
+
+@NotEmpty
+private String platform;
+    public User toEntity() {
+            return User.builder()
+                    .email(this.email)
+                    .password(this.password)
+                    .roles(Collections.singletonList("RoLE_USER"))
+                    .access_token(null)
+                    .refresh_token(null)
+                    .platform(platform)
+                    .build();
+    }
+```
+
+- User에도 추가하였기때문에 DTO에도 추가
 ### application.yml
-
 ```yml
 properties:
      hibernate:
@@ -87,3 +124,36 @@ properties:
 ```
 
 - 설정을 적용하면 Hibernate의 SQL 쿼리 로깅, 데이터 가져오기 성능, 그리고 로그 메시지의 가독성이 개선됩니다.
+
+
+### UserService
+```java
+@Transactional
+public String connect(UserRequest.JoinDTO joinDto) {
+    // ** 인증 작업
+    try{
+        UsernamePasswordAuthenticationToken token
+                = new UsernamePasswordAuthenticationToken(
+                joinDto.getEmail(), joinDto.getPassword());
+        Authentication authentication
+                = authenticationManager.authenticate(token);
+        // ** 인증 완료 값을 받아온다.
+        // 인증키
+        CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
+
+        String prefixJwt = JwtTokenProvider.create(customUserDetails.getUser());
+        String access_token = prefixJwt.replace(JwtTokenProvider.TOKEN_PREFIX, "");
+        String refreshToken = JwtTokenProvider.createRefresh(customUserDetails.getUser());
+
+        User user = customUserDetails.getUser();
+        user.setAccess_token(access_token);
+        user.setRefresh_token(refreshToken);
+        userRepository.save(user);
+
+        return prefixJwt;
+    }catch (Exception e){
+        throw new Exception401("인증되지 않음.");
+    }
+}
+```
+- 인증 작업을위한 코드작업

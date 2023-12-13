@@ -68,22 +68,30 @@ public class UserService {
     public String connect(UserRequest.JoinDTO joinDto) {
         // ** 인증 작업
         try{
+            // 사용자로부터 받은 이메일과 비밀번호를 가지고 토큰을 생성.
             UsernamePasswordAuthenticationToken token
                     = new UsernamePasswordAuthenticationToken(
                     joinDto.getEmail(), joinDto.getPassword());
+            // 토큰을 이용해 인증을 시도.
             Authentication authentication
                     = authenticationManager.authenticate(token);
             // ** 인증 완료 값을 받아온다.
             // 인증키
+            // 인증된 사용자의 정보를 가져옵니다.
             CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
-
+            // JWT 토큰을 생성.
             String prefixJwt = JwtTokenProvider.create(customUserDetails.getUser());
+            // "Bearer "를 제거해서 순수한 토큰만을 가져옵니다.
             String access_token = prefixJwt.replace(JwtTokenProvider.TOKEN_PREFIX, "");
+            // JWT 리프레시 토큰을 생성.
             String refreshToken = JwtTokenProvider.createRefresh(customUserDetails.getUser());
 
             User user = customUserDetails.getUser();
+            // 생성된 토큰들을 사용자 정보에 저장.
             user.setAccess_token(access_token);
             user.setRefresh_token(refreshToken);
+
+            // 사용자 정보를 저장.
             userRepository.save(user);
 
             return prefixJwt;
