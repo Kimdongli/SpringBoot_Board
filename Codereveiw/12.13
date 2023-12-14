@@ -129,7 +129,7 @@ properties:
 ### UserService
 ```java
 @Transactional
-public String connect(UserRequest.JoinDTO joinDto) {
+public String authenticateAndCreateToken(UserRequest.JoinDTO joinDto) {
     // ** 인증 작업
     try{
         UsernamePasswordAuthenticationToken token

@@ -12,6 +12,7 @@ import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,22 +47,8 @@ public class UserService {
         }
     }
 
-    public void login(UserRequest.JoinDTO requestDTO, HttpSession session) {
-        try {
-            final String oauthUrl = "http://localhost:8080/user/oauth";
-            ResponseEntity<JsonNode> response = userPost(oauthUrl,null, requestDTO);
-            String access_token = response.getHeaders().getFirst(JwtTokenProvider.HEADER);
-            session.setAttribute("access_token", access_token);
-            session.setAttribute("platform", "user");
-
-            setUserInfoInSession(session);
-        } catch (Exception e){
-            throw new Exception500(e.getMessage());
-        }
-    }
-
     @Transactional
-    public String connect(UserRequest.JoinDTO joinDto) {
+    public String authenticateAndCreateToken(UserRequest.JoinDTO joinDto) {
         // ** 인증 작업
         try{
             // 사용자로부터 받은 이메일과 비밀번호를 가지고 토큰을 생성.
@@ -96,6 +83,20 @@ public class UserService {
         }
     }
 
+    public void login(UserRequest.JoinDTO requestDTO, HttpSession session) {
+        try {
+            final String oauthUrl = "http://localhost:8080/user/oauth";
+            ResponseEntity<JsonNode> response = userPost(oauthUrl,null, requestDTO);
+            String access_token = response.getHeaders().getFirst(JwtTokenProvider.HEADER);
+            session.setAttribute("access_token", access_token);
+            session.setAttribute("platform", "user");
+
+            setUserInfoInSession(session);
+        } catch (Exception e){
+            throw new Exception500(e.getMessage());
+        }
+    }
+
     public User setUserInfoInSession(HttpSession session) {
         // 세션에서 액세스 토큰을 가져옵니다.
         String access_token = (String) session.getAttribute("access_token");
@@ -122,5 +123,22 @@ public class UserService {
         } catch (Exception e){
             throw new Exception500(e.getMessage());
         }
+    }
+
+    @Transactional
+    public String logout(HttpSession session) {
+        try {
+                User user = setUserInfoInSession(session);
+                userRepository.save(clearTokens(user));
+                session.invalidate();
+            return "/";
+        } catch (Exception e){
+            throw new Exception500(e.getMessage());
+        }
+    }
+    public User clearTokens(User user){
+        user.setAccess_token(null);
+        user.setRefresh_token(null);
+        return user;
     }
 }

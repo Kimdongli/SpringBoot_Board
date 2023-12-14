@@ -1,10 +1,13 @@
 package com.example.demo.user;
 
 
+import com.example.demo.core.security.CustomUserDetails;
 import com.example.demo.core.security.JwtTokenProvider;
 import com.example.demo.core.utils.ApiUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -18,10 +21,11 @@ import javax.validation.Valid;
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
+    @PostMapping("/check")
+    public ResponseEntity<Object> check(@RequestBody @Valid UserRequest.JoinDTO requestDTO, Error error){
+        userService.checkEmail(requestDTO.getEmail());
 
-    @GetMapping("/join")
-    public ModelAndView joinPage() {
-        return new ModelAndView("join");
+        return ResponseEntity.ok(ApiUtils.success(null));
     }
 
     @PostMapping("/join")
@@ -44,6 +48,29 @@ public class UserController {
 
         userService.login(requestDTO, request.getSession());
         return ResponseEntity.ok(ApiUtils.success(null));
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request, Error error){
+        return userService.logout(request.getSession());
+    }
+
+    @PostMapping("/oauth")
+    public ResponseEntity<Object> connect(@RequestBody @Valid UserRequest.JoinDTO requestDTO, Error error){
+        String jwt = userService.authenticateAndCreateToken(requestDTO);
+
+        return ResponseEntity.ok().header(JwtTokenProvider.HEADER, jwt)
+                .body(ApiUtils.success(null));
+    }
+
+    @PostMapping("/user_id")
+    public ResponseEntity<ApiUtils.ApiResult<Long>> getCurrentUser(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        if (customUserDetails.getUser() == null){
+            return ResponseEntity.ok(ApiUtils.error("현재 로그인된 user가 없습니다.", HttpStatus.UNAUTHORIZED));
+        }
+        //User user = userService.getUserById(customUserDetails.getUser().getId());
+        // user.output();
+        return ResponseEntity.ok(ApiUtils.success(customUserDetails.getUser().getId()));
     }
 
 

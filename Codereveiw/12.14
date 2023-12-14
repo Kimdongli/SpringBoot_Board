@@ -44,7 +44,8 @@ public void login(UserRequest.JoinDTO requestDTO, HttpSession session) {
         }
     }
 ```
-- 현재 로그인상태를 JWT 로그인상태를 관리중이지만 세션으로 관리를 해야하므로
+- 현재 로그인상태를 JWT 로그인상태를 관리중이지만 JWT관리를(authenticateAndCreateToken)
+ 따로만들어서 하였기떄문에 로그인 메소드에서는 세션 관리를 하였음
 - 세션으로 관리를하도록 코드를 수정하였다
 
 ### UserController
@@ -69,3 +70,98 @@ public ResponseEntity<Object> login(@RequestBody @Valid UserRequest.JoinDTO requ
 }
 ```
 - Service를 바꿨으니 Controller도 바꾼코드에맞게 바꿔준다.
+
+### UserService
+```java
+public User setUserInfoInSession(HttpSession session) {
+    // 세션에서 액세스 토큰을 가져옵니다.
+    String access_token = (String) session.getAttribute("access_token");
+    // 사용자 정보를 가져오기 위한 URL을 설정.
+    final String infoUrl = "http://localhost:8080/user/user_id";
+    // 새로운 HTTP 헤더를 생성.
+    HttpHeaders headers = new HttpHeaders();
+    // 헤더의 컨텐츠 타입을 JSON으로 설정.
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    // 액세스 토큰을 헤더에 추가.
+    headers.set("Authorization", access_token);
+    // HTTP POST 요청을 보내고, 응답을 받아옵니다. 이때, 응답 본문에서 "response" 필드를 long 타입으로 변환하여 사용자 ID를 가져옵니다.
+    Long user_id = userPost(infoUrl, headers, null).getBody().get("response").asLong();
+    // 사용자 ID를 이용해 사용자를 찾아 반환.
+    return userRepository.findById(user_id).get();
+}
+```
+- HTTP 세션에서 사용자의 액세스 토큰을 가져와, 이를 사용하여 사용자 정보를 조회하는 기능추가
+
+### UserService
+```java
+public <T> ResponseEntity<JsonNode> userPost(String requestUrl, HttpHeaders headers, T body){
+       try{
+           RestTemplate restTemplate = new RestTemplate();
+           HttpEntity<T> requestEntity = new HttpEntity<>(body, headers);
+
+           return restTemplate.exchange(requestUrl, HttpMethod.POST, requestEntity, JsonNode.class);
+       } catch (Exception e){
+           throw new Exception500(e.getMessage());
+       }
+   }
+```
+- 이 메소드는 주어진 URL, HTTP 헤더, 그리고 요청 본문을 사용하여 HTTP POST 요청을 보내는 기능을 수행하며
+ 서버로부터 받은 응답을 ResponseEntity<JsonNode> 타입으로 반환합니다.
+
+- __RestTemplate__객체는 스프링 프레임워크에서 제공하는 클래스로, HTTP 요청을 쉽게 보낼 수 있게 해주는 기능을 제공한다.
+
+### UserService
+```java
+@Transactional
+public String logout(HttpSession session) {
+    try {
+            User user = setUserInfoInSession(session);
+            userRepository.save(clearTokens(user));
+            session.invalidate();
+        return "/";
+    } catch (Exception e){
+        throw new Exception500(e.getMessage());
+    }
+}
+public User clearTokens(User user){
+    user.setAccess_token(null);
+    user.setRefresh_token(null);
+    return user;
+}
+```
+### UserController
+```java
+@GetMapping("/logout")
+public String logout(HttpServletRequest req, Error error){
+    return userService.logout(req.getSession());
+}
+```
+- logout기능을 구현을 하지않아서 로그아웃기능 구현(Service,Controller)
+
+- 현재 테스트를 하여서 회원가입은 정상적으로 되는것을 확인후 로그인을 할려고하는데 로그인 비밀번호를 제대로쳤음에도
+비밀번호가 틀렸다고 나오고있다.
+
+### UserController
+```java
+@PostMapping("/oauth")
+public ResponseEntity<Object> connect(@RequestBody @Valid UserRequest.JoinDTO requestDTO, Error error){
+    String jwt = userService.authenticateAndCreateToken(requestDTO);
+
+    return ResponseEntity.ok().header(JwtTokenProvider.HEADER, jwt)
+            .body(ApiUtils.success(null));
+}
+
+@PostMapping("/user_id")
+public ResponseEntity<ApiUtils.ApiResult<Long>> getCurrentUser(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+    if (customUserDetails.getUser() == null){
+        return ResponseEntity.ok(ApiUtils.error("현재 로그인된 user가 없습니다.", HttpStatus.UNAUTHORIZED));
+    }
+    //User user = userService.getUserById(customUserDetails.getUser().getId());
+    // user.output();
+    return ResponseEntity.ok(ApiUtils.success(customUserDetails.getUser().getId()));
+}
+```
+
+- Service에적어두고 oauth,user_id Url이필요한 시점에서 저것을안적어뒀다.
+  - user_id 사용자 정보가져오는 기능
+- 저두코드를적고 오류 해결

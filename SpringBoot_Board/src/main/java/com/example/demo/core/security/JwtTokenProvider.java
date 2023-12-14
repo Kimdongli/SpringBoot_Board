@@ -8,6 +8,7 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.demo.user.StringArrayConverter;
 import com.example.demo.user.User;
+import org.springframework.security.core.Authentication;
 
 import java.util.Date;
 
@@ -56,5 +57,11 @@ public class JwtTokenProvider {
                 .verify(jwt); // 검증 할 것
 
         return decodedJWT;
+    }
+
+    public static void invalidateToken(Authentication authentication){
+        if (authentication != null && authentication.isAuthenticated()){
+
+        }
     }
 }
