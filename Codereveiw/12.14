@@ -1,5 +1,6 @@
 ## User연동(2)
 
+- 참고 : https://gksdudrb922.tistory.com/217#JwtTokenProvider
 ### UserService
 ```java
 public String login(UserRequest.JoinDTO requestDTO) {
