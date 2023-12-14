@@ -9,10 +9,10 @@ import javax.servlet.http.HttpSession;
 @Controller
 public class HomeController {
     @GetMapping("/")
-    public String home(HttpServletRequest req){
-        HttpSession session = req.getSession();
+    public String home(HttpServletRequest request){
+        HttpSession session = request.getSession();
         if (session.getAttribute("access_token") != null)
-            return "logined";
+            return "kakao";
         return "index";
     }
 

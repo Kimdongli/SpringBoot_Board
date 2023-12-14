@@ -164,4 +164,5 @@ public ResponseEntity<ApiUtils.ApiResult<Long>> getCurrentUser(@AuthenticationPr
 
 - Service에적어두고 oauth,user_id Url이필요한 시점에서 저것을안적어뒀다.
   - user_id 사용자 정보가져오는 기능
+  - oauth 사용자 인증 및 Jwt생성 처리
 - 저두코드를적고 오류 해결
