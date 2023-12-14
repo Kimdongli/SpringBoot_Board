@@ -25,7 +25,7 @@ public class UserController {
     }
 
     @PostMapping("/join")
-    public ResponseEntity join(@RequestBody @Valid UserRequest.JoinDTO requestDTO, Errors errors){
+    public ResponseEntity<Object> join(@RequestBody @Valid UserRequest.JoinDTO requestDTO, Errors errors){
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors.getAllErrors());
         }
@@ -40,14 +40,10 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody @Valid UserRequest.JoinDTO requestDTO, HttpServletRequest request, Error error){
+    public ResponseEntity<Object> login(@RequestBody @Valid UserRequest.JoinDTO requestDTO, HttpServletRequest request, Error error){
 
-        String jwt = userService.login(requestDTO);
-
-        // HttpSession httpSession = request.getSession(true);
-        // httpSession.setAttribute(SessionConst.LOGIN_MEMBER, jwt);
-        return ResponseEntity.ok().header(JwtTokenProvider.HEADER, jwt)
-                .body(ApiUtils.success(null));
+        userService.login(requestDTO, request.getSession());
+        return ResponseEntity.ok(ApiUtils.success(null));
     }
 
 

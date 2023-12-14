@@ -3,16 +3,21 @@ package com.example.demo.user;
 
 import com.example.demo.core.error.exception.Exception400;
 import com.example.demo.core.error.exception.Exception401;
+import com.example.demo.core.error.exception.Exception500;
 import com.example.demo.core.security.CustomUserDetails;
 import com.example.demo.core.security.JwtTokenProvider;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.HttpSession;
 import java.util.Optional;
 
 @Transactional(readOnly = true)
@@ -25,11 +30,7 @@ public class UserService {
 
     @Transactional
     public void join(UserRequest.JoinDTO requestDTO) {
-        Optional<User> byEmail = userRepository.findByEmail(requestDTO.getEmail());
-
-        if(byEmail.isPresent()){
-            throw new Exception400("이미 존재하는 email 입니다" + requestDTO.getEmail());
-        }
+        checkEmail(requestDTO.getEmail());
 
         String encodedPassword = passwordEncoder.encode(requestDTO.getPassword());
         requestDTO.setPassword(encodedPassword);
@@ -37,31 +38,26 @@ public class UserService {
         userRepository.save(requestDTO.toEntity());
     }
 
-    @Transactional
-    public String login(UserRequest.JoinDTO requestDTO) {
-        String jwt = "";
+    public void checkEmail(String email){
+        Optional<User> byEmail = userRepository.findByEmail(email);
 
-        try {
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
-                    = new UsernamePasswordAuthenticationToken(requestDTO.getEmail(), requestDTO.getPassword());
-
-            Authentication authentication =  authenticationManager.authenticate(
-                    usernamePasswordAuthenticationToken
-            );
-
-            if (authentication.getPrincipal() == null){
-                throw new Exception401("Principal is null");
-            }
-
-            CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
-
-            jwt  = JwtTokenProvider.create(customUserDetails.getUser());
-
-        } catch (Exception e){
-            throw new Exception401("인증되지 않음.");
+        if(byEmail.isPresent()){
+            throw new Exception400("이미 존재하는 email 입니다" + email);
         }
+    }
 
-        return jwt;
+    public void login(UserRequest.JoinDTO requestDTO, HttpSession session) {
+        try {
+            final String oauthUrl = "http://localhost:8080/user/oauth";
+            ResponseEntity<JsonNode> response = userPost(oauthUrl,null, requestDTO);
+            String access_token = response.getHeaders().getFirst(JwtTokenProvider.HEADER);
+            session.setAttribute("access_token", access_token);
+            session.setAttribute("platform", "user");
+
+            setUserInfoInSession(session);
+        } catch (Exception e){
+            throw new Exception500(e.getMessage());
+        }
     }
 
     @Transactional
@@ -100,5 +96,31 @@ public class UserService {
         }
     }
 
+    public User setUserInfoInSession(HttpSession session) {
+        // 세션에서 액세스 토큰을 가져옵니다.
+        String access_token = (String) session.getAttribute("access_token");
+        // 사용자 정보를 가져오기 위한 URL을 설정.
+        final String infoUrl = "http://localhost:8080/user/user_id";
+        // 새로운 HTTP 헤더를 생성.
+        HttpHeaders headers = new HttpHeaders();
+        // 헤더의 컨텐츠 타입을 JSON으로 설정.
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        // 액세스 토큰을 헤더에 추가.
+        headers.set("Authorization", access_token);
+        // HTTP POST 요청을 보내고, 응답을 받아옵니다. 이때, 응답 본문에서 "response" 필드를 long 타입으로 변환하여 사용자 ID를 가져옵니다.
+        Long user_id = userPost(infoUrl, headers, null).getBody().get("response").asLong();
+        // 사용자 ID를 이용해 사용자를 찾아 반환.
+        return userRepository.findById(user_id).get();
+    }
 
+    public <T> ResponseEntity<JsonNode> userPost(String requestUrl, HttpHeaders headers, T body){
+        try{
+            RestTemplate restTemplate = new RestTemplate();
+            HttpEntity<T> requestEntity = new HttpEntity<>(body, headers);
+
+            return restTemplate.exchange(requestUrl, HttpMethod.POST, requestEntity, JsonNode.class);
+        } catch (Exception e){
+            throw new Exception500(e.getMessage());
+        }
+    }
 }

@@ -1,0 +1,71 @@
+## User연동(2)
+
+### UserService
+```java
+public String login(UserRequest.JoinDTO requestDTO) {
+String jwt = "";
+
+    try {
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
+                = new UsernamePasswordAuthenticationToken(requestDTO.getEmail(), requestDTO.getPassword());
+
+        Authentication authentication =  authenticationManager.authenticate(
+                usernamePasswordAuthenticationToken
+        );
+
+        if (authentication.getPrincipal() == null){
+            throw new Exception401("Principal is null");
+        }
+
+        CustomUserDetails customUserDetails = (CustomUserDetails)authentication.getPrincipal();
+
+        jwt  = JwtTokenProvider.create(customUserDetails.getUser());
+
+    } catch (Exception e){
+        throw new Exception401("인증되지 않음.");
+    }
+
+    return jwt;
+}
+
+->
+
+public void login(UserRequest.JoinDTO requestDTO, HttpSession session) {
+        try {
+            final String oauthUrl = "http://localhost:8080/user/oauth";
+            ResponseEntity<JsonNode> response = userPost(oauthUrl,null, requestDTO);
+            String access_token = response.getHeaders().getFirst(JwtTokenProvider.HEADER);
+            session.setAttribute("access_token", access_token);
+            session.setAttribute("platform", "user");
+
+            setUserInfoInSession(session);
+        } catch (Exception e){
+            throw new Exception500(e.getMessage());
+        }
+    }
+```
+- 현재 로그인상태를 JWT 로그인상태를 관리중이지만 세션으로 관리를 해야하므로
+- 세션으로 관리를하도록 코드를 수정하였다
+
+### UserController
+```java
+@PostMapping("/login")
+public ResponseEntity login(@RequestBody @Valid UserRequest.JoinDTO requestDTO, HttpServletRequest request, Error error){
+
+    String jwt = userService.login(requestDTO);
+
+
+    return ResponseEntity.ok().header(JwtTokenProvider.HEADER, jwt)
+            .body(ApiUtils.success(null));
+}
+
+->
+
+@PostMapping("/login")
+public ResponseEntity<Object> login(@RequestBody @Valid UserRequest.JoinDTO requestDTO, HttpServletRequest request, Error error){
+
+    userService.login(requestDTO, request.getSession());
+    return ResponseEntity.ok(ApiUtils.success(null));
+}
+```
+- Service를 바꿨으니 Controller도 바꾼코드에맞게 바꿔준다.
