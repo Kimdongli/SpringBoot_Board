@@ -164,5 +164,10 @@ public ResponseEntity<ApiUtils.ApiResult<Long>> getCurrentUser(@AuthenticationPr
 
 - Service에적어두고 oauth,user_id Url이필요한 시점에서 저것을안적어뒀다.
   - user_id 사용자 정보가져오는 기능
-  - oauth 사용자 인증 및 Jwt생성 처리
+  - oauth 사용자 인증 및 Jwt생성 처리하는 기능
 - 저두코드를적고 오류 해결
+
+- 마지막으로 Kakao(KakaoService,KakaoController)패키지를 만들었습니다.
+---
+
+- 회고 : 오늘 인증관리하면서 JWT가 너무어려운 관계로 오늘은 JWT를 정확하게 짚고넘어 갈것이다.
