@@ -7,10 +7,10 @@ __JWT은 일반적으 클라이언와 서버 통신 시 권한 인가(Authorizat
 - 2. 서버에서 DB에 해당 ID/PW를 가진 User가 있다면, __Access Token__과 __Refresh Token__을 발급해준다.
 - 3. 클라이언트는 발급받은 __Access Token__ 을 헤더에 담아서 서버가 허용한 API를 사용할 수 있게 된다.
 
-여기서 __Refresh Token__은 새로운 Access Token을 발급하기 위한 토큰이다.
-기본적으로 __Access Token은 외부 유출 문제로 인해 유효기간을 짧게 설정하는데, 정상적인 클라이언트는
-유효기간이 끝난 __Access Token에 대해 __Refresh Token__을 사용하여 새로운 __Access Token__을 발급받을 수 있다.
-따라서, __Refresh Token의 유효기간은 __Access Token의 유효기간보다 길게 설정해야 한다고 생각할 수 있다.
+여기서 __Refresh Token__은 새로운 __Access Token__을 발급하기 위한 토큰이다.
+기본적으로 __Access Token__은 외부 유출 문제로 인해 유효기간을 짧게 설정하는데, 정상적인 클라이언트는
+유효기간이 끝난 __Access Token__에 대해 __Refresh Token__을 사용하여 새로운 __Access Token__을 발급받을 수 있다.
+따라서, __Refresh Token__의 유효기간은 __Access Token__의 유효기간보다 길게 설정해야 한다고 생각할 수 있다.
 
 
 ### build.gradle
