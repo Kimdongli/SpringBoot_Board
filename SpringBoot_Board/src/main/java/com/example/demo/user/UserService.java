@@ -6,6 +6,7 @@ import com.example.demo.core.error.exception.Exception401;
 import com.example.demo.core.error.exception.Exception500;
 import com.example.demo.core.security.CustomUserDetails;
 import com.example.demo.core.security.JwtTokenProvider;
+import com.example.demo.kakao.KakaoService;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
@@ -27,6 +28,7 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final KakaoService kakaoService;
     private final AuthenticationManager authenticationManager;
 
     @Transactional
@@ -100,6 +102,12 @@ public class UserService {
     public User setUserInfoInSession(HttpSession session) {
         // 세션에서 액세스 토큰을 가져옵니다.
         String access_token = (String) session.getAttribute("access_token");
+
+        if (session.getAttribute("platform").equals("kakao")) {
+            String email = kakaoService.getUserFromKakao(access_token).getEmail();
+            return userRepository.findByEmail(email).orElseThrow(
+                    () -> new Exception401("인증되지 않았습니다."));
+        }
         // 사용자 정보를 가져오기 위한 URL을 설정.
         final String infoUrl = "http://localhost:8080/user/user_id";
         // 새로운 HTTP 헤더를 생성.
@@ -128,9 +136,13 @@ public class UserService {
     @Transactional
     public String logout(HttpSession session) {
         try {
+            if (session.getAttribute("platform").equals("kakao")) {
+                kakaoService.KakaoLogout(session);
+            }else {
                 User user = setUserInfoInSession(session);
                 userRepository.save(clearTokens(user));
                 session.invalidate();
+            }
             return "/";
         } catch (Exception e){
             throw new Exception500(e.getMessage());

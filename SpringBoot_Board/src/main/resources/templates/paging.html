@@ -19,7 +19,6 @@
     <div class="text-right mb-3">
         <button class="btn btn-primary" onclick="create()"> 글쓰기</button>
     </div>
-
     <table class="table table-bordered table-striped">
         <tr th:each="board: ${boardList}">
             <td th:text="${board.getId}"></td>

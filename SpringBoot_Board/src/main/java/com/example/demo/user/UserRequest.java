@@ -29,7 +29,8 @@ public class UserRequest {
             @Pattern(regexp = "^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$", message = "이메일 형식으로 작성해주세요")
             private String email;
 
-
+            @NotEmpty
+            private String name;
 
             @NotEmpty
             @Size(min = 8, max = 20, message = "8자 이상 20자 이내로 작성 가능합니다.")
@@ -56,6 +57,7 @@ public class UserRequest {
                         return User.builder()
                                 .email(this.email)
                                 .password(this.password)
+                                .name(this.name)
                                 .roles(Collections.singletonList("RoLE_USER"))
                                 .access_token(null)
                                 .refresh_token(null)

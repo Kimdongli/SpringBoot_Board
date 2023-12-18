@@ -1,6 +1,11 @@
 package com.example.demo.home;
 
+import com.example.demo.core.security.CustomUserDetails;
+import org.springframework.boot.Banner;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,7 +20,6 @@ public class HomeController {
             return "kakao";
         return "index";
     }
-
     @GetMapping("/login")
     public String loginForm() {
         return "login";

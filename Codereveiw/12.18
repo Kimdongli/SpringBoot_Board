@@ -1,0 +1,228 @@
+## Kakao연동
+
+### KakaoService
+```java
+public String KakaoConnect(){
+        try {
+            StringBuffer url = new StringBuffer();
+            url.append("https://kauth.kakao.com/oauth/authorize?");
+            url.append("client_id=").append(restApi);
+            url.append("&redirect_uri=").append("http://localhost:8080/kakao/callback");
+            url.append("&response_type=" + "code");
+            return url.toString();
+        }catch (Exception e){
+            throw new Exception500(e.getMessage());
+        }
+    }
+    public String KakaoAutoConnect(){
+       try{
+           StringBuffer url = new StringBuffer();
+           url.append(KakaoConnect());
+           url.append("&prompt=" + "login");
+
+           return url.toString();
+       }catch (Exception e){
+           throw new Exception500(e.getMessage());
+       }
+   }
+```
+- __KakaoConnect:__ 카카오 로그인을 위한 인증 URL을 생성
+- __KakaoAutoConnect:__  kakaoConnect 메소드에서 생성한 카카오 로그인
+인증 URL에 추가 파라미터를 붙여 새로운 URL을 생성하는 코드입니다.
+
+### KakaoController
+```java
+@GetMapping("oauth")
+public String KakaoConnect(){
+    String link = kakaoService.KakaoConnect();
+    return "redirect:" + link;
+}
+
+@GetMapping("/relogin")
+public String KakaoAutoConnect(Error error){
+    String link = kakaoService.KakaoAutoConnect();
+
+    return "redirect:"+link;
+}
+```
+__KakaoController__
+- __KakaoLogin:__ 카카오 로그인 Api를 이용하여 사용자 로그인을 처리하는 메소드
+- __KakaoConnect:__ 카카오 로그인을 위해 인증 URL을 처리하는 메소드
+
+### KakaoService
+```java
+@Transactional
+public String KakaoLogin(String code, HttpSession session){
+    try {
+        JsonNode token = getKakaoAccessToken(code);
+        String access_token = token.get("access_token").asText();
+        String refresh_token = token.get("refresh_token").asText();
+
+        session.setAttribute("access_token", access_token);
+        session.setAttribute("platform", "kakao");
+
+        User user = KakaoJoin(access_token);
+        user.setAccess_token(access_token);
+        user.setRefresh_token(refresh_token);
+        userRepository.save(user);
+        return "http://localhost:8080/";
+    }catch (Exception e){
+        throw new Exception401("인증안됨");
+    }
+}
+
+public User KakaoJoin(String access_token){
+    try {
+        User user = getUserFromKakao(access_token);
+        String email = user.getEmail();
+        if(!userRepository.existsByEmail(email)){
+            return userRepository.save(user);
+        }
+        return userRepository.findByEmail(email).orElseThrow(
+                ()->new Exception401("인증되지 않습니다."));
+    }catch (Exception e){
+        throw new Exception500(e.getMessage());
+    }
+}
+
+public User getUserFromKakao(String access_token){
+    JsonNode userInfo = getKakaoUserInfo(access_token);
+    JsonNode kakao_account = userInfo.path("kakao_account");
+    String encodePassword = passwordEncoder.encode(access_token);
+    JsonNode properties = userInfo.path("properties");
+
+    User user = User.builder()
+            .email(kakao_account.path("email").asText())
+            .password(encodePassword)
+            .name(properties.path("nickname").asText())
+            .roles(Collections.singletonList("ROLE_USER"))
+            .platform("kakao")
+            .build();
+    return user;
+}
+
+public JsonNode getKakaoUserInfo(String access_token){
+    final String requestUrl = "https://kapi.kakao.com/v2/user/me";
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Authorization", "Bearer" + access_token);
+    ResponseEntity<JsonNode> response = kakaoPost(requestUrl, headers, null);
+
+    return response.getBody();
+}
+```
+### KakaoController
+```java
+@GetMapping(value = "/callback", produces = "application/json")
+public String kakaoLogin(@RequestParam("code")String code, Error error, HttpServletRequest req, HttpServletResponse res) {
+    // 로그인은 크롬 화면에서 하고 여기서 실제로는 토큰, 사용자 정보 얻기를 함
+    String link = kakaoService.KakaoLogin(code,req.getSession());
+
+    // 다시 로그인 화면으로 돌아옴
+    return "redirect:" + link;
+}
+```
+__KakaoService__
+- __KakaoLogin:__ 카카오 로그인을 처리하는 메소드
+- __KakaoJoin:__ 카카오 회원가입을 처리하는 메소드
+- __getUserFromKakao:__ 카카오 API를 통해 받아온 사용자 정보를 활용하여 User 객체를 생성하는 역할을 합니다.
+ 이 User 객체는 사용자의 이메일,패스워드 (암호화된 액세스 토큰을 사용), 이름, 권한, 플랫폼 정보를 담고 있습니다.
+- __getKakaoUserInfo:__ 카카오 API를 사용하여 사용자의 정보를 가져오는 역할을 합니다.
+
+__KakaoController__
+- __KakaoLogin:__ 카카오 로그인을 할때 토큰,사용자 정보를 얻어서 로그인하는 메소드.
+
+
+### KakaoService
+```java
+@Transactional
+ public void KakaoLogout(HttpSession session){
+     final String requestUrl = "https://kapi.kakao.com/v1/user/logout";
+     String access_token = (String) session.getAttribute("access_token");
+
+     try {
+         String email = getUserFromKakao(access_token).getEmail();
+         User user = userRepository.findByEmail(email).orElseThrow(
+                 () -> new Exception401("사용자를 찾을 수 없습니다."));
+         HttpHeaders headers = new HttpHeaders();
+         headers.set("Content-Type", "application/x-www-form-urlencoded");
+         headers.set("Authorization", "Bearer " + access_token);
+         KakaoPost(requestUrl, headers, null);
+         user.setAccess_token(null);
+         user.setRefresh_token(null);
+         session.invalidate();
+     }catch (Exception500 e){
+         throw new Exception500("로그아웃 실행중 오류 발생");
+     }catch (Exception e){
+         e.printStackTrace();
+     }
+ }
+
+ @Transactional
+ public String KakaoFLogout(HttpSession session){
+     try {
+         String access_token =(String)session.getAttribute("access_token");
+         String email = getUserFromKakao(access_token).getEmail();
+         User user = userRepository.findByEmail(email).orElseThrow(
+                 ()->new Exception401("사용자를 찾을 수 없습니다."));
+         user.setAccess_token(null);
+         user.setRefresh_token(null);
+         session.invalidate();
+         StringBuffer stringBuffer = new StringBuffer();
+         stringBuffer.append("https://kauth.kakao.com/oauth/logout?");
+         stringBuffer.append("client_id=").append(restApi);
+         stringBuffer.append("&logout_redirect_url=" + "http://localhost:8080/");
+
+         return stringBuffer.toString();
+
+     }catch (Exception500 e){
+         throw new Exception500("로그아웃 도중 오류 발생");
+     }
+
+
+ }
+```
+
+### KakaoController
+```java
+@GetMapping("/logout")
+    public String KakaoLogout(HttpServletRequest request){
+        kakaoService.KakaoLogout(request.getSession());
+        return "index";
+    }
+
+    @GetMapping("/flogout")
+    public String KakaoFLogout(HttpServletRequest request){
+        String lnk=kakaoService.KakaoFLogout(request.getSession());
+
+        return "redirect:" + lnk;
+    }
+```
+__KakaoService__
+- __KakaoLogout:__ 사용자가 앱에서 로그아웃하는 경우를 처리합니다.
+- __KakaoFLogout:__ 사용자가 카카오 계정 자체에서 로그아웃하는 경우를 처리합니다.
+
+### UserService(setUserInfoInSession, logout)
+```java
+if (session.getAttribute("platform").equals("kakao")) {
+           String email = kakaoService.getUserFromKakao(access_token).getEmail();
+           return userRepository.findByEmail(email).orElseThrow(
+                   () -> new Exception401("인증되지 않았습니다."));
+       }
+
+if (session.getAttribute("platform").equals("kakao")) {
+          kakaoService.KakaoLogout(session);
+```
+- __setUserInfoInSession:__ 이코드는 사용자의 세션 정보를 확인하여 카카오 플랫폼을 통해 로그인한 사용자인지 확인하는 과정을 나타낸다.
+- __logout:__ 세션에서 "platform"이라는 속성을 가져와 그 값이 "kakao"인지 확인한다.
+이 사용자 카카오 통해 로그인했는를 확인한다.
+### 회고
+- 세션,쿠키는 저장하는용도 JWT(인증방법 인증서를 발급)와 사용방법이 다르다
+유저가 요청있을떄마다 확인
+- 현재 게시판과 로그인을 연동중에있다.
+- 현재 세션으로 관리하고 있지만 쿠키로 관리할것이다.
+(현재 세션으로 관리하기는 코드가 복잡해지고 세션에 대한 이해도가 부족하다.)
+- 계속해서 알아보면서 카카오로그인을 구현중이지만 이해가 안가는부분이 아직많다.
+(access_token을통해 유저정보를들고오고 그유정보로 카카오 로그인을 하는과정이 어렵다.)
+참고:[https://velog.io/@twinsgemini ]  [https://rkgh17.tistory.com/ ]
+- 현재 카카오로그아웃이 안되고있다 내가봤을떈 로그아웃 리다이렉트 URL가 올바르지 않거 사용자정보 정상적으로
+반환을 안하는것같은데 이건 내일 한번 알아보도록할것이다.
