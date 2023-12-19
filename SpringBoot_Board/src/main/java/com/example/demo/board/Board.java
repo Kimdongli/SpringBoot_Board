@@ -75,4 +75,9 @@ public class Board {
         this.updateTime = LocalDateTime.now();
     }
 
+    public void updateFromUser(User user){
+        this.user = user;
+    }
+
+
 }

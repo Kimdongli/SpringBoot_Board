@@ -1,18 +1,21 @@
 package com.example.demo.board;
 
-import com.example.demo.board.BoardDTO;
-import com.example.demo.board.Board;
+import com.example.demo.core.security.CustomUserDetails;
 import com.example.demo.file.BoardFile;
-import com.example.demo.board.BoardRepository;
 import com.example.demo.file.FileRepository;
+import com.example.demo.user.User;
+import com.example.demo.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,6 +33,8 @@ import java.util.UUID;
 public class BoardService {
     private final BoardRepository boardRepository;
     private final FileRepository fileRepository;
+    private final UserService userService;
+
 
 
     // ** 학원에서는 /G/
@@ -66,7 +71,7 @@ public class BoardService {
 
     // ** 데이터 변경해야 되는곳이면 별도로 함수위에 트렌젝션을 넣는다.
     @Transactional
-    public void save(BoardDTO dto, MultipartFile[] files) throws IOException {
+    public void save(BoardDTO dto, MultipartFile[] files, HttpSession session) throws IOException {
 
         Path uploadPath = Paths.get(filePath);
 
@@ -78,6 +83,7 @@ public class BoardService {
         // ** 게시글 DB에 저장 후 pk을 받아옴.
         Long id = boardRepository.save(dto.toEntity()).getId();
         Board board = boardRepository.findById(id).get();
+        board.updateFromUser(userService.setUserInfoInSession(session));
 
         // file null이면 들어오면안된다. 예외처리
         // ** 파일 정보 저장.
@@ -117,12 +123,13 @@ public class BoardService {
             }
         }
     }
-
+/*
     private String createFilePath(MultipartFile file) throws IOException {
 
         return "";
     }
 
+ */
     @Transactional
     public void delete(Long id) {
 
@@ -150,5 +157,24 @@ public class BoardService {
 
         boardRepository.save(board);
 
+    }
+
+    public User getCurrentUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()){
+            return null;
+        }
+        return ((CustomUserDetails) authentication.getPrincipal()).getUser();
+    }
+
+    public boolean isAuthorOfBoard(Long boardId){
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(()->new NoSuchElementException("행당 보드를 찾을수 없습니다"+boardId));
+
+        User currentUser = getCurrentUser();
+        if (currentUser == null){
+            return false;
+        }
+        return board.getUser().equals(currentUser);
     }
 }

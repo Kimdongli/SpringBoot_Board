@@ -1,5 +1,7 @@
 package com.example.demo.board;
 
+import com.example.demo.core.error.exception.Exception403;
+import com.example.demo.core.error.exception.Exception500;
 import com.example.demo.file.BoardFile;
 import com.example.demo.file.FileRepository;
 import lombok.AllArgsConstructor;
@@ -11,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -68,17 +71,16 @@ public class BoardController {
     //** Update
     @PostMapping("/save")
     public String save(@ModelAttribute BoardDTO boardDTO,
-                       @RequestParam MultipartFile[] files) throws IOException {
+                       @RequestParam MultipartFile[] files, HttpServletRequest request) throws IOException {
 
         boardDTO.setCreateTime(LocalDateTime.now());
-        boardService.save(boardDTO, files);
+        boardService.save(boardDTO, files,request.getSession());
 
-        return "redirect:/board/";
+        return "redirect:/board/paging";
     }
 
     @GetMapping("/update/{id}")
     public String updateForm(@PathVariable Long id, Model model){
-
         BoardDTO boardDTO =boardService.findById(id);
         model.addAttribute("board",boardDTO);
         return "update";

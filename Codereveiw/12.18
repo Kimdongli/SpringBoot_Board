@@ -32,7 +32,7 @@ public String KakaoConnect(){
 
 ### KakaoController
 ```java
-@GetMapping("oauth")
+@GetMapping("/oauth")
 public String KakaoConnect(){
     String link = kakaoService.KakaoConnect();
     return "redirect:" + link;

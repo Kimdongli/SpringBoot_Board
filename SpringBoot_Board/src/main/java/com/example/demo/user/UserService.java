@@ -1,6 +1,7 @@
 package com.example.demo.user;
 
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.demo.core.error.exception.Exception400;
 import com.example.demo.core.error.exception.Exception401;
 import com.example.demo.core.error.exception.Exception500;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 import java.util.Optional;
 
 @Transactional(readOnly = true)
@@ -153,4 +155,46 @@ public class UserService {
         user.setRefresh_token(null);
         return user;
     }
+
+    @Transactional
+    public void refresh(Long id, HttpSession session) {
+        // 사용자 아이디를 통해 리프레시 토큰을 가져옵니다. 만약 사용자를 찾을 수 없다면 500 에러를 반환.
+        String refresh_token = userRepository.findById(id)
+                .orElseThrow(() -> new Exception500("사용자를 찾을 수 없습니다.")).getRefresh_token();
+
+        // 리프레시 토큰을 검증하고 복호화.
+        DecodedJWT decodedJWT = JwtTokenProvider.verify(refresh_token);
+
+        // === Access Token 재발급 === //
+        // 복호화된 JWT에서 사용자 이름을 가져옵니다.
+        String username = decodedJWT.getSubject();
+        // 사용자 이메일을 통해 사용자 정보를 가져옵니다. 만약 사용자를 찾을 수 없다면 500 에러를 반환.
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new Exception500("사용자를 찾을 수 없습니다."));
+        // 가져온 사용자의 리프레시 토큰과 처음에 검증한 리프레시 토큰이 일치하는지 확인. 일치하지 않다면 401 에러를 반환.
+        if (!user.getRefresh_token().equals(refresh_token))
+            throw new Exception401("유효하지 않은 Refresh Token 입니다.");
+        // 새로운 액세스 토큰을 생성.
+        String new_access_Token = JwtTokenProvider.create(user);
+        // 사용자 정보에 새로운 액세스 토큰 저장
+        user.setAccess_token(new_access_Token);
+        // 세션에 새로운 액세스 토큰을 저장
+        session.setAttribute("access_token", new_access_Token);
+
+        // === 현재시간과 Refresh Token 만료날짜를 통해 남은 만료기간 계산 === //
+        // === Refresh Token 만료시간 계산해 5일 미만일 시 refresh token도 발급 === //
+        long endTime = decodedJWT.getClaim("exp").asLong() * 1000;
+        long diffDay = (endTime - System.currentTimeMillis()) / 1000 / 60 / 60 / 24;
+        if (diffDay < 5) {
+            String new_refresh_token = JwtTokenProvider.createRefresh(user);
+            user.setRefresh_token(new_refresh_token);
+        }
+
+        userRepository.save(user);
+    }
+
+    public Long getCurrnetUserId(HttpSession session) {
+        return setUserInfoInSession(session).getId();
+    }
+
 }

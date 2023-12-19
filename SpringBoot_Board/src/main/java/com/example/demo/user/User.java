@@ -2,6 +2,7 @@ package com.example.demo.user;
 
 import com.example.demo.board.Board;
 import com.example.demo.comment.Comment;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,14 +13,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Table(name = "user_tb")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 100, nullable = false,unique = true)
     private String email;
 
     @Column(length = 100, nullable = false)

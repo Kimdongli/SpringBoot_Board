@@ -58,7 +58,7 @@ public class UserRequest {
                                 .email(this.email)
                                 .password(this.password)
                                 .name(this.name)
-                                .roles(Collections.singletonList("RoLE_USER"))
+                                .roles(Collections.singletonList("ROLE_USER"))
                                 .access_token(null)
                                 .refresh_token(null)
                                 .platform(platform)

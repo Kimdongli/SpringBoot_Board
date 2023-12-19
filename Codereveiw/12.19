@@ -1,0 +1,99 @@
+## Kakao연동(2)
+
+- 현재 계속해서 카카오로그인할시 401인증오류가 뜨고있다 일단 refresh를 UserService에 만들지 않아서 만들었다.
+
+### UserService
+```java
+@Transactional
+   public void refresh(Long id, HttpSession session) {
+       // 사용자 아이디를 통해 리프레시 토큰을 가져옵니다. 만약 사용자를 찾을 수 없다면 500 에러를 반환.
+       String refresh_token = userRepository.findById(id)
+               .orElseThrow(() -> new Exception500("사용자를 찾을 수 없습니다.")).getRefresh_token();
+
+       // 리프레시 토큰을 검증하고 복호화.
+       DecodedJWT decodedJWT = JwtTokenProvider.verify(refresh_token);
+
+       // === Access Token 재발급 === //
+       // 복호화된 JWT에서 사용자 이름을 가져옵니다.
+       String username = decodedJWT.getSubject();
+       // 사용자 이메일을 통해 사용자 정보를 가져옵니다. 만약 사용자를 찾을 수 없다면 500 에러를 반환.
+       User user = userRepository.findByEmail(username)
+               .orElseThrow(() -> new Exception500("사용자를 찾을 수 없습니다."));
+       // 가져온 사용자의 리프레시 토큰과 처음에 검증한 리프레시 토큰이 일치하는지 확인. 일치하지 않다면 401 에러를 반환.
+       if (!user.getRefresh_token().equals(refresh_token))
+           throw new Exception401("유효하지 않은 Refresh Token 입니다.");
+       // 새로운 액세스 토큰을 생성.
+       String new_access_Token = JwtTokenProvider.create(user);
+       // 사용자 정보에 새로운 액세스 토큰 저장
+       user.setAccess_token(new_access_Token);
+       // 세션에 새로운 액세스 토큰을 저장
+       session.setAttribute("access_token", new_access_Token);
+
+       // === 현재시간과 Refresh Token 만료날짜를 통해 남은 만료기간 계산 === //
+       // === Refresh Token 만료시간 계산해 5일 미만일 시 refresh token도 발급 === //
+       long endTime = decodedJWT.getClaim("exp").asLong() * 1000;
+       long diffDay = (endTime - System.currentTimeMillis()) / 1000 / 60 / 60 / 24;
+       if (diffDay < 5) {
+           String new_refresh_token = JwtTokenProvider.createRefresh(user);
+           user.setRefresh_token(new_refresh_token);
+       }
+
+       userRepository.save(user);
+   }
+```
+- __access_token__은 짧은 수명을 가지 있으므 __refresh_token__을 이용해서 __access_token__이 만료가되면 받아오는데 사용이 되고있다.
+사용자 로그인 유지하는데 중요한 역활을한다.
+---
+- 현재 안됬던이유를 찾았다 Bearer부분에 뒤에 뛰어쓰기를 안한게 있었다. 여러가지 시도를 했지만 제자리로 돌아와 Bearer하나만 바꾼것같은데
+해결이 됬으므로 그쪽문제 였던것같다.
+ - __내가 생각했던 오류: client_id,redirect_uri가 내것을 잘못보고 잘못적었거나 토큰 가져오는과정에서 오류가 있을거라생각했다.__
+ - __내가 수정했던 부분: user테이블명 변경 Kakaodeveloper에 들어가서 redirect_uri변경 변수명,작은 오타 수정__
+---
+### Kakao(Board연동)
+
+- 현재 카카오로그인까지 확인하였기때문에 댓글이나 보드수정을 작성자만 할수있도록 만들려고한다.
+
+### BoardService
+```java
+public User getCurrentUser(){
+    // 현재 Security Context에서 인증 정보를 가져옵니다.
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    // 인증 정보가 없거나 인증되지 않은 경우, null을 반환합니다.
+    if (authentication == null || !authentication.isAuthenticated()){
+        return null;
+    }
+    // 인증 정보가 있는 경우, 인증 정보(Principal)을 CustomUserDetails 타입으로 변환한 후,
+    // 이를 통해 User 정보를 가져와 반환합니다.
+    return ((CustomUserDetails) authentication.getPrincipal()).getUser();
+}
+
+public boolean isAuthorOfBoard(Long boardId){
+    // boardId를 사용하여 게시판 정보를 가져옵니다.
+    // 만약 해당 boardId를 가진 게시판이 없다면, NoSuchElementException이 발생합니다.
+    Board board = boardRepository.findById(boardId)
+            .orElseThrow(()->new NoSuchElementException("해당 보드를 찾을수 없습니다"+boardId));
+
+    // 현재 로그인한 사용자 정보를 가져옵니다.
+    User currentUser = getCurrentUser();
+    // 로그인한 사용자가 없는 경우, false를 반환합니다.
+    if (currentUser == null){
+        return false;
+    }
+    // 로그인한 사용자가 게시물의 작성자와 동일한지 확인하고, 결과를 반환합니다.
+    // 만약 동일하다면 true, 그렇지 않다면 false를 반환합니다.
+    return board.getUser().equals(currentUser);
+}
+```
+
+- 현재 이걸넣어도 안되는걸보니 스크립트쪽을만지거나 코드를 다시확인해서 해야할것같다.
+- BoardService 추가: ```javaboard.updateFromUser(userService.setUserInfoInSession(session)); ```
+현재로그인한 사용자를 가져와서 게시물정보를 업데이트하는 작업을 하는코드이다.
+- 계속해서 하고있으나 스크립트쪽을만지다가 게시물 만드는것이 오류가나서 내일다시 해야할것같다.
+## 회고
+- 오늘 Kakao연동까지는 잘해결하였지만 현재 세션을이용하여 게시물 작성과 댓글작성 구현하는것에 어려움이있다.
+- 유저 정보를 이용하여 적용시킨다는것이 현재 어려움을 많이격고있다. 계속해서 세션관리 공부를 해야한다 느껴집니다.
+
+__오늘내가 세션관리와 세션으로 게시판 작성기능 구현에 대한 생각__
+1. 사용자 로그인 시 사용자의 정보를 세션에 저장합니다.
+2. 사용자가 게시판을 수정하거나 삭제하려고 할 때, 해당 요청이 들어오면 세션에서 사용자 정보를 가져옵니다.
+3. 가져온 사용자 정보와 게시판의 작성자 정보를 비교하여 일치하는 경우에만 수정이나 삭제를 허용합니다.

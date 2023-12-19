@@ -73,5 +73,17 @@ public class UserController {
         return ResponseEntity.ok(ApiUtils.success(customUserDetails.getUser().getId()));
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<Object> tokenRefresh(@AuthenticationPrincipal CustomUserDetails customUserDetails, HttpServletRequest req){
+        if (customUserDetails.getUser() == null){
+            return ResponseEntity.ok(ApiUtils.error("현재 로그인된 user가 없습니다.", HttpStatus.UNAUTHORIZED));
+        }
+        userService.refresh(customUserDetails.getUser().getId(), req.getSession());
+        return ResponseEntity.ok(ApiUtils.success(null));
+    }
 
+    @GetMapping("/send_user_id")
+    public ResponseEntity<ApiUtils.ApiResult<Long>> getCurrnetUserId(HttpServletRequest req){
+        return ResponseEntity.ok(ApiUtils.success(userService.getCurrnetUserId(req.getSession())));
+    }
 }
