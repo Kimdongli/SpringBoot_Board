@@ -55,17 +55,20 @@ public class Board {
     @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE,orphanRemoval = true,fetch = FetchType.LAZY)
     private List<Comment> comment = new ArrayList<>();
 
-
     @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE,orphanRemoval = true,fetch = FetchType.LAZY)
     private List<BoardFile> files = new ArrayList<>();
+
     @Builder
-    public Board(Long id, String username, String title, String contents, LocalDateTime createTime, LocalDateTime updateTime) {
+    public Board(Long id, String username, String title, String contents, LocalDateTime createTime, LocalDateTime updateTime, User user, List<Comment> comment, List<BoardFile> files) {
         this.id = id;
         this.username = username;
         this.title = title;
         this.contents = contents;
         this.createTime = createTime;
         this.updateTime = updateTime;
+        this.user = user;
+        this.comment = comment;
+        this.files = files;
     }
 
     public void updateFromDTO(BoardDTO boardDTO){
@@ -79,5 +82,6 @@ public class Board {
         this.user = user;
     }
 
+    public void clearFile(){this.files.clear();}
 
 }

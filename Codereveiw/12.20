@@ -1,0 +1,282 @@
+## html및JavaScript수정
+
+- 현재 서버쪽에는 문제가없어보이므로 스크립트쪽을 고쳐볼려고하고있다.
+
+### create
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            글 작성
+        </div>
+        <div class="card-body">
+            <!-- 글작성하기 버튼을 클릭했을 때 "/board/save"로 post로 작성 -->
+            <form action="/board/save" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <div class="title_area">
+                        <label for="title">제목</label>
+                    </div>
+                    <div class="option_area">
+                        <input type="text" id="title" name="title" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="title_area">
+                        <label for="contents">내용</label>
+                    </div>
+                    <div class="option_area">
+                        <textarea name="contents" id="contents" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="title_area">
+                        <label for="files">첨부 파일</label>
+                    </div>
+                    <div class="option_area">
+                        <label class="button_upload">파일 선택
+                            <span class="blind"></span>
+                            <input class="blind" type="file" id="files" name="files" multiple onchange="Files(event)">
+                        </label>
+                        <div id="selected-files"></div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">글 작성</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    function Files(event) {
+        const files = event.target.files;
+        const selectedFilesContainer = document.getElementById('selected-files');
+        selectedFilesContainer.innerHTML = '';
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const fileName = file.name;
+            const fileItem = document.createElement('div');
+            fileItem.textContent = fileName;
+            selectedFilesContainer.appendChild(fileItem);
+        }
+    }
+</script>
+</body>
+</html>
+```
+- 첨푸파일 섹션추가 하였고 파일이름이 보이게만들었다.(files)
+
+### update
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            글 수정
+        </div>
+        <div class="card-body">
+            <!-- 글 수정하기 버튼을 클릭했을 때 "/board/update"로 post로 작성 -->
+            <form action="/board/update" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="id" th:value="${board.id}">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" class="form-control" id="title" name="title">
+                </div>
+                <div class="form-group">
+                    <label for="contents">Contents</label>
+                    <textarea class="form-control" id="contents" name="contents" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="files">첨부 파일</label>
+                    <label class="button_upload">파일 선택
+                        <span class="blind"></span>
+                        <input class="blind" type="file" id="files" name="files" multiple onchange="Files(event)">
+                    </label>
+                    <div id="selected-files"></div>
+                </div>
+                <button type="submit" class="btn btn-primary">글 수정</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    function Files(event) {
+        const files = event.target.files;
+        const selectedFilesContainer = document.getElementById('selected-files');
+        selectedFilesContainer.innerHTML = '';
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const fileName = file.name;
+            const fileItem = document.createElement('div');
+            fileItem.textContent = fileName;
+            selectedFilesContainer.appendChild(fileItem);
+        }
+    }
+</script>
+</body>
+</html>
+```
+- create.html과 같이 첨푸파일 섹션을 추가하였고 파일이름이 보이게만들었다.(files)
+
+### BoardDTO
+```java
+public class BoardDTO {
+
+    private Long id;
+
+    private String writer;
+
+
+    // ** 제목
+    private String title;
+
+    // ** 내용
+    private String contents;
+
+    private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
+
+    private Long userId;
+    public Board toEntity(){
+        return  Board.builder()
+                .title(title)
+                .contents(contents)
+                .createTime(createTime)
+                .updateTime(LocalDateTime.now())
+                .build();
+    }
+
+    public static BoardDTO toBardDTO(Board board){
+        return new BoardDTO(
+                board.getId(),
+                board.getUser().getName(),
+                board.getTitle(),
+                board.getContents(),
+                board.getCreateTime(),
+                board.getUpdateTime(),
+                board.getUser().getId());
+    }
+```
+
+- BoardDTO 에 toBardDTO안에 유저이름,유저아이디를 DTO형식으로 반환하는것을 추가하였다.
+
+### update.html
+```html
+<body>
+<form action="/board/update" method="post" enctype="multipart/form-data">
+    <h2>게시글 수정</h2>
+    <input type="hidden" name="id" th:value="${board.id}">
+    <div class="form-group">
+        <div class="title_area">
+            <label>제목</label>
+        </div>
+        <div class="option_area">
+            <input type="text" id="title" name="title" th:value="${board.getTitle}" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="title_area">
+            <label>내용</label>
+        </div>
+        <div class="option_area">
+            <textarea name="contents" id="contents" cols="30" rows="10" th:text="${board.getContents}"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="title_area">
+            <label>첨부 파일</label>
+        </div>
+        <div class="option_area">
+            <label class="button_upload">파일 선택
+                <span class="blind"></span>
+                <input class="blind" type="file" id="files" name="files" multiple onchange="updateSelectedFiles(event)">
+            </label>
+            <div id="selected-files"></div>
+        </div>
+    </div>
+    <input type="submit" value="수정">
+</form>
+```
+- __게시물 업데이트 오류가났던이유__
+  1. board.id는 Thymeleaf 가 적용되어있지만 conttents,title은 Thymeleaf 가적용이안되어있었다.
+  2. required 속성이 없는건 문제가 있던건 아니였던것같다.
+  __required__:  해당 입력 필드가 반드시 값을 가져야 한다는 것을 나타내는 HTML5의 유효성 검사.
+---
+## Comment 연동
+
+### CommnetService
+```java
+@Transactional  // 트랜잭션 처리를 위한 어노테이션. 이 메소드 내의 DB 작업이 하나의 트랜잭션으로 묶입니다.
+public Comment save(CommentDTO commentDTO) {
+    // 댓글이 달릴 게시판을 찾기 위해 게시판의 ID를 사용하여 DB에서 게시판 정보를 가져옵니다.
+    Optional<Board> optionalBoard = boardRepository.findById(commentDTO.getBoardId());
+    // 댓글을 달 사용자를 찾기 위해 사용자의 ID를 사용하여 DB에서 사용자 정보를 가져옵니다.
+    Optional<User> optionalUser = userRepository.findById(commentDTO.getUserId());
+
+    // 게시판과 사용자가 존재하는지 확인합니다. 둘 다 존재하면 아래의 코드를 실행합니다.
+    if (optionalUser.isPresent() && optionalBoard.isPresent()){
+        User user = optionalUser.get();  // DB에서 찾은 사용자 정보를 User 객체에 할당합니다.
+        Board board = optionalBoard.get();  // DB에서 찾은 게시판 정보를 Board 객체에 할당합니다.
+
+        // Hibernate의 초기화 메소드를 사용하여 사용자와 게시판의 LAZY 로딩을 수행합니다. 이를 통해 사용자의 댓글, 게시판, 게시판의 댓글, 첨부 파일 정보를 미리 로딩합니다.
+        Hibernate.initialize(user.getComments());
+        Hibernate.initialize(user.getBoards());
+        Hibernate.initialize(board.getComments());
+        Hibernate.initialize(board.getFiles());
+
+        // Comment 객체를 생성합니다. 이때, 사용자와 게시판 정보, 댓글 내용을 함께 저장합니다.
+        Comment comment = Comment.builder()
+                .contents(commentDTO.getContents())
+                .board(board)
+                .user(user)
+                .build();
+
+        // 생성한 Comment 객체를 DB에 저장합니다.
+        commentRepository.save(comment);
+
+        // 저장된 Comment 객체를 반환합니다.
+        return comment;
+    } else {
+        // 게시판이나 사용자가 존재하지 않는다면 null을 반환합니다.
+        return null;
+    }
+}
+```
+- 그전에 코드는 set을이용해서 사용하였지만Entity에는 Set을넣어서 값을변경하는걸 선호하지 않기때문에 set을빼고 코드를 수정하였다.
+댓글을 누가달았는지 알기위해 사용자 정보를 들고오는 코드도 만들어줬다.
+
+---
+  __현재 다른유저가 수정이가능하기떄문에  detail쪽에있는 html,JavaScript를 수정하여 작성한사람만 수정버튼이랑,삭제버튼을 누를수있게만드는것이
+  제일 좋아보인다.__
+### detail
+```html
+```
+
+---
+## 회고

@@ -2,16 +2,12 @@ package com.example.demo.file;
 
 import com.example.demo.board.Board;
 import com.sun.istack.NotNull;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Setter
 @Entity
 public class BoardFile {
 
@@ -22,19 +18,14 @@ public class BoardFile {
     // ** 파일 경로
     @NotNull
     private String filePath;
-
-
     // ** 파일 이름
     @Column(length = 150,nullable = false)
     private String fileName;
-
     // ** uuid(랜덤 키)
     private String uuid;
-
     // ** 파일 포멧
     @NotNull
     private String fileType;
-
     // ** 파일 크기
     private Long fileSize;
 

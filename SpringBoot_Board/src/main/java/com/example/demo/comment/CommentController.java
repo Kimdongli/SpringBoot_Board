@@ -1,5 +1,6 @@
 package com.example.demo.comment;
 
+import com.example.demo.board.BoardDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/comment")
 public class CommentController {
@@ -17,17 +18,13 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping("/save")
-    public ResponseEntity save(@ModelAttribute CommentDTO commentDTO) {
+    public ResponseEntity<CommentDTO> save(@ModelAttribute CommentDTO commentDto){
+        Comment comment = commentService.save(commentDto);
 
-        System.out.println(commentDTO);
-
-        Comment savedComment = commentService.save(commentDTO);
-        CommentDTO savedCommentDTO = commentDTO.toCommentDTO(savedComment);
-
-        if (savedCommentDTO != null) {
-            return new ResponseEntity<>(savedCommentDTO, HttpStatus.OK);
+        if (comment != null){
+            return ResponseEntity.ok().body(commentDto);
         } else {
-            return new ResponseEntity<>("게시글이 없음.", HttpStatus.NOT_FOUND);
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -45,6 +42,14 @@ public class CommentController {
 
         // CommentDTO 리스트를 HTTP 상태 코드 200(OK)와 함께 ResponseEntity에 담아 반환합니다.
         return new ResponseEntity<>(commentDTOS, HttpStatus.OK);
+    }
+
+    @GetMapping("/comments")
+    public ResponseEntity<List<CommentDTO>>CList(@ModelAttribute BoardDTO dto){
+        Long boardId= dto.getId();
+        List<CommentDTO> commentDTOS = commentService.CList(boardId);
+
+        return ResponseEntity.ok().body(commentDTOS);
     }
 
     @PutMapping("/update/{id}")

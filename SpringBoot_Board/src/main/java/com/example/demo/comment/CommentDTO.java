@@ -19,24 +19,21 @@ public class CommentDTO {
 
     private Long boardId;
 
+    private Long userId;
     public Comment toEntity(){
         Comment comment = Comment.builder()
-                .writer(writer)
+                .id(id)
                 .contents(contents)
                 .build();
-        if (boardId != null) {
-            Board board = new Board();
-            board.setId(boardId);
-            comment.setBoard(board);
-        }
         return comment;
     }
      public static CommentDTO toCommentDTO(Comment comment){
         return new CommentDTO(
                 comment.getId(),
-                comment.getWriter(),
+                comment.getUser().getName(),
                 comment.getContents(),
-                comment.getBoard().getId());
+                comment.getBoard().getId(),
+                comment.getUser().getId());
      }
     
 }

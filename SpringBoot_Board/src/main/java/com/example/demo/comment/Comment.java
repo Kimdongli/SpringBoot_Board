@@ -13,7 +13,6 @@ import javax.persistence.*;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 public class Comment {
 
@@ -25,9 +24,6 @@ public class Comment {
     @Column(length = 50)
     private String contents;
 
-    @Column(length = 50)
-    private String writer;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
@@ -38,12 +34,14 @@ public class Comment {
     private User user;
 
     @Builder
-    public Comment(Long id, String contents,Board board, String writer) {
+    public Comment(Long id, String contents, Board board, User user) {
         this.id = id;
         this.contents = contents;
         this.board = board;
-        this.writer = writer;
+        this.user = user;
     }
+
+
 
 
     public void updateFromDTO(CommentDTO commentDTO){

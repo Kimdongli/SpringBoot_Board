@@ -197,4 +197,12 @@ public class UserService {
         return setUserInfoInSession(session).getId();
     }
 
+    public void findAll(){
+        List<User> all = userRepository.findAll();
+
+        for (User user : all){
+            System.out.println();
+        }
+    }
+
 }

@@ -14,17 +14,20 @@ public class BoardDTO {
     
     private Long id;
 
+    private String writer;
+
+
     // ** 제목
-    @Column(length = 50)
     private String title;
 
     // ** 내용
-    @Column(length = 50)
     private String contents;
 
     private LocalDateTime createTime;
 
     private LocalDateTime updateTime;
+
+    private Long userId;
     public Board toEntity(){
         return  Board.builder()
                 .title(title)
@@ -37,9 +40,11 @@ public class BoardDTO {
     public static BoardDTO toBardDTO(Board board){
         return new BoardDTO(
                 board.getId(),
+                board.getUser().getName(),
                 board.getTitle(),
                 board.getContents(),
                 board.getCreateTime(),
-                board.getUpdateTime() );
+                board.getUpdateTime(),
+                board.getUser().getId());
     }
 }
