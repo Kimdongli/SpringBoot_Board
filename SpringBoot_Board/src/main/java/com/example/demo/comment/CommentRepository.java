@@ -10,5 +10,4 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByBoardId(Long boardId);
 
-    List<Comment> findAllByBoardOrderByIdDesc(Board board);
 }

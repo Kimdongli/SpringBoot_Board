@@ -23,6 +23,10 @@
             <td th:text="${board.getTitle}"></td>
         </tr>
         <tr>
+            <th>writer</th>
+            <td th:text="${board.getWriter}"></td>
+        </tr>
+        <tr>
             <th>date</th>
             <td th:text="${#temporals.format(board.getCreateTime, 'yyyy-MM-dd HH:mm')}"></td>
         </tr>
@@ -86,17 +90,17 @@
     const commentWrite = () => {
         const jsWriter = document.getElementById("writer").value;
         const jsContents = document.getElementById("contents").value;
-        console.log("작성자: ", jsWriter);
         console.log("내용: ", jsContents);
         const jsId = [[${board.id}]];
+        const jsWriterId = userId;
         $.ajax({
             // 요청방식: post, 요청주소: /comment/save, 요청데이터: 작성자, 작성내용, 게시글번호
             type: "post",
             url: "/comment/save",
             data: {
-                "writer": jsWriter,
                 "contents": jsContents,
                 "boardId": jsId
+                "userId" : jsWriterId
             },
             success: function (res) {
                    console.log("요청성공", res);

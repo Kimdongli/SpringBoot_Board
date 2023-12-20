@@ -268,15 +268,27 @@ public Comment save(CommentDTO commentDTO) {
     }
 }
 ```
-- 그전에 코드는 set을이용해서 사용하였지만Entity에는 Set을넣어서 값을변경하는걸 선호하지 않기때문에 set을빼고 코드를 수정하였다.
+- 그전에 코드는 set을이용해서 사용하였지만Entity에는 set을넣어서 값을변경하는걸 선호하지 않기때문에 set을빼고 코드를 수정하였다.
 댓글을 누가달았는지 알기위해 사용자 정보를 들고오는 코드도 만들어줬다.
 
----
-  __현재 다른유저가 수정이가능하기떄문에  detail쪽에있는 html,JavaScript를 수정하여 작성한사람만 수정버튼이랑,삭제버튼을 누를수있게만드는것이
-  제일 좋아보인다.__
-### detail
-```html
+### CommentService
+```java
+public List<CommentDTO> CList(Long id){
+    List<Comment>comments = commentRepository.findByBoardId(id);
+    List<CommentDTO>commentDTOS =new LinkedList<>();
+    for (Comment comment : comments){
+        commentDTOS.add(CommentDTO.toCommentDTO(comment));
+    }
+    return commentDTOS;
+}
 ```
+- 게시판ID를 받아서 해당 게시판의 댓글 목록을 반환하는 기능을 수행하지만 수정전 코드는 URL경로를 통해 수행하였고,
+수정후 코드는 요청파라미터를 통해 게시판 ID를 받아오는 차이점이있다.
 
----
 ## 회고
+- __현재는 가독성과 편의성을위해 코드를 수정에있고 Comment작업만 하면될것같다.__
+- __지금 어려움을격고있는것은 댓글 작성자만 댓글(삭제,수정)이 가능해야하는걸 구현중에있다__
+
+1. 내일 해야할것:
+- __detail.html에서 javaScript를 수정하기__
+- __마무리가 됬으면 Readme.md로 포폴완성__

@@ -34,17 +34,14 @@ public class CommentController {
     @GetMapping("/getComments/{boardId}")
     public ResponseEntity<List<CommentDTO>> getComments(@PathVariable Long boardId) {
         // 서비스 레이어의 getCommentsByBoardId 메소드를 호출하여, 해당 게시판에 달린 댓글을 가져옵니다.
-        List<Comment> comments = commentService.getCommentsByBoardId(boardId);
-
-        // 가져온 댓글들(Comment 객체)을 CommentDTO 객체로 변환합니다.
-        // 이때 Java 8의 Stream API와 람다 표현식을 사용합니다.
-        List<CommentDTO> commentDTOS = comments.stream().map(CommentDTO::toCommentDTO).collect(Collectors.toList());
+        List<CommentDTO> commentDTOS = commentService.getCommentsByBoardId(boardId);
 
         // CommentDTO 리스트를 HTTP 상태 코드 200(OK)와 함께 ResponseEntity에 담아 반환합니다.
         return new ResponseEntity<>(commentDTOS, HttpStatus.OK);
     }
 
-    @GetMapping("/comments")
+    /*
+    @GetMapping("/getComments")
     public ResponseEntity<List<CommentDTO>>CList(@ModelAttribute BoardDTO dto){
         Long boardId= dto.getId();
         List<CommentDTO> commentDTOS = commentService.CList(boardId);
@@ -52,6 +49,7 @@ public class CommentController {
         return ResponseEntity.ok().body(commentDTOS);
     }
 
+     */
     @PutMapping("/update/{id}")
     public ResponseEntity update(@ModelAttribute CommentDTO commentDTO){
         commentService.update(commentDTO);

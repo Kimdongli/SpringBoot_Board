@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -34,6 +35,7 @@ public class CommentService {
     public Comment save(CommentDTO commentDTO) {
         // 댓글이 달릴 게시판을 찾기 위해 게시판의 ID를 사용하여 DB에서 게시판 정보를 가져옵니다.
         Optional<Board> optionalBoard = boardRepository.findById(commentDTO.getBoardId());
+        // 댓글이 달 유저 찾기 위해 게시판의 ID를 사용하여 DB에서 게시판 정보를 가져옵니다.
         Optional<User> optionalUser = userRepository.findById(commentDTO.getBoardId());
         // 게시판이 존재하는지 확인합니다. 존재하면 아래의 코드를 실행합니다.
         if (optionalUser.isPresent() && optionalBoard.isPresent()){
@@ -65,15 +67,18 @@ public class CommentService {
         return commentDTOS;
     }
 
-    public List<Comment> getCommentsByBoardId(Long boardId) {
-        return commentRepository.findByBoardId(boardId);
+    public List<CommentDTO> getCommentsByBoardId(Long boardId) {
+        List<Comment> comments = commentRepository.findByBoardId(boardId);
+
+        // 가져온 댓글들(Comment 객체)을 CommentDTO 객체로 변환합니다.
+        // 이때 Java 8의 Stream API와 람다 표현식을 사용합니다.
+        return comments.stream().map(CommentDTO::toCommentDTO).collect(Collectors.toList());
     }
 
     @Transactional
     public void delete(Long id){
         commentRepository.deleteById(id);
     }
-
     @Transactional
     public void update(CommentDTO commentDTO){
         Optional<Comment> commentOptional = commentRepository.findById(commentDTO.getId());
