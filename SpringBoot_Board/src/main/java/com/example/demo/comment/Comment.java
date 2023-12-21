@@ -41,9 +41,6 @@ public class Comment {
         this.user = user;
     }
 
-
-
-
     public void updateFromDTO(CommentDTO commentDTO){
         this.contents = commentDTO.getContents();
     }

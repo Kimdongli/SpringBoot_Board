@@ -74,7 +74,6 @@ public class CommentService {
         // 이때 Java 8의 Stream API와 람다 표현식을 사용합니다.
         return comments.stream().map(CommentDTO::toCommentDTO).collect(Collectors.toList());
     }
-
     @Transactional
     public void delete(Long id){
         commentRepository.deleteById(id);
@@ -87,5 +86,4 @@ public class CommentService {
             comment.updateFromDTO(commentDTO);
         }
     }
-
 }

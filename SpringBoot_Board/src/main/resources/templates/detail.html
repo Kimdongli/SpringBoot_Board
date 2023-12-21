@@ -125,7 +125,7 @@
     function deleteComment(commentId) {
         $.ajax({
             url: '/comment/delete/' + commentId,
-            type: 'DELETE',
+            type: 'POST',
             success: function(result) {
                 console.log("댓글 삭제 성공");
                 // 성공적으로 삭제한 후, 댓글 목록을 다시 로드

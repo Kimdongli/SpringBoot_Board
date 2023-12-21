@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Kakotalk Page Form</title>
+    <title>Kako Page Form</title>
     <style>
         body {
             background-color: #354649;
@@ -75,7 +75,7 @@
         async function logout() {
             try {
                 const response = await fetch('/user/logout', {
-                   method: 'GET',
+                   method: 'POST',
                 });
                 const result = await response.text();
 
@@ -93,12 +93,10 @@
 <div class="form-container">
     <div class="col">
         <button class="btn btn-lg btn-secondary" onclick="print_users()">가입자들 출력</button>
-        <button type="button" class="btn btn-lg btn-secondary" onclick="location.href='/kakao/userlist'">카카오톡 사용자들 출력</button>
     </div>
     <div class="col">
         <button class="btn btn-lg btn-secondary" onclick="logout()">로그아웃</button>
         <button type="button" class="btn btn-lg btn-secondary" onclick="location.href='/kakao/flogout'">카카오 로그아웃</button>
-        <!--        <button type="button" class="btn btn-lg btn-secondary" onclick="location.href='http://localhost:8080/kakao/fulllogout'">카카오 로그아웃</button>-->
     </div>
     <div class="col">
         <button onclick="paging()"> 게시판 </button>

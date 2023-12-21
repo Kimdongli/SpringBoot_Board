@@ -24,9 +24,6 @@ public class Board {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 작성자 이름
-    @Column(length = 50)
-    private String username;
 
     // 게시물 제목
     @Column(length = 50)
@@ -61,7 +58,6 @@ public class Board {
     @Builder
     public Board(Long id, String username, String title, String contents, LocalDateTime createTime, LocalDateTime updateTime, User user, List<Comment> comment, List<BoardFile> files) {
         this.id = id;
-        this.username = username;
         this.title = title;
         this.contents = contents;
         this.createTime = createTime;

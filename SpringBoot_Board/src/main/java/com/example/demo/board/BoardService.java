@@ -118,21 +118,7 @@ public class BoardService {
             }
         }
     }
-    @Transactional
-        public void delete(Long id) {
 
-            // ** 사진받은 경로에 파일까지 삭제하게 만든다
-            List<BoardFile> boardFiles = fileRepository.findByBoardId(id);
-
-            for (BoardFile file : boardFiles) {
-                File targetFile = new File(file.getFilePath() + file.getUuid() + file.getFileName());
-                if (targetFile.exists()) {
-                    targetFile.delete();
-                }
-                fileRepository.delete(file);
-            }
-            boardRepository.deleteById(id);
-        }
 
     @Transactional
     public void update(BoardDTO boardDTO, MultipartFile[] files) throws IOException {
@@ -180,8 +166,22 @@ public class BoardService {
                     fileRepository.save(boardFile);
                 }
             }
-
         }
+    @Transactional
+    public void delete(Long id) {
+
+        // ** 사진받은 경로에 파일까지 삭제하게 만든다
+        List<BoardFile> boardFiles = fileRepository.findByBoardId(id);
+
+        for (BoardFile file : boardFiles) {
+            File targetFile = new File(file.getFilePath() + file.getUuid() + file.getFileName());
+            if (targetFile.exists()) {
+                targetFile.delete();
+            }
+            fileRepository.delete(file);
+        }
+        boardRepository.deleteById(id);
+    }
     public List<BoardFile> byBoardFiles(Long id){
         return fileRepository.findByBoardId(id);
     }
