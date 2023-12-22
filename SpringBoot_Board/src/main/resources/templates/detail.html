@@ -311,7 +311,7 @@
     const getUserId = async () => {
         await $.ajax({
             type: "get",
-            url: "/user/send_user_id",
+            url: "/user/send_userid",
             success: function (res) {
                 userId = res.response;
                 console.log("id", userId);

@@ -50,20 +50,5 @@ public class KakaoController {
 
         return "redirect:" + lnk;
     }
-/*
-    @GetMapping("/disconnect")
-    public String kakaoDisconnect(HttpServletRequest req){
-        kakaoService.kakaoDisconnect(req.getSession());
 
-        return "index";
-    }
-
-    @GetMapping("/userlist")
-    public String kakaoDisconnect(){
-        kakaoService.kakaoUserList();
-
-        return "logined";
-    }
-
- */
 }

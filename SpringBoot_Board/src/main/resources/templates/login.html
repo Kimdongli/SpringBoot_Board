@@ -2,8 +2,78 @@
 <html>
 <head>
     <title>로그인</title>
+    <style>
+        body {
+            background-color: #354649;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            color: #ffffff;
+        }
+
+        #loginForm, #kakaoForm {
+            width: 300px;
+            margin: 0 auto;
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #loginForm label, #kakaoForm label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        #loginForm input[type="email"], #loginForm input[type="password"],
+        #kakaoForm input[type="email"], #kakaoForm input[type="password"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            color: #000000;
+            background-color: #ffffff;
+        }
+
+        #loginForm input[type="submit"] {
+            flex: 0 0 auto;
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 5px;
+            font-size: 13px;
+            color: #354649;
+            line-height: 18px;
+            vertical-align: top;
+            background-color: #6C7A89;
+            font-weight: normal;
+            border: none;
+            cursor: pointer;
+        }
+
+        #loginForm input[type="submit"]:hover {
+            background-color: #AEB6BF;
+        }
+
+        #kakaoForm button {
+            flex: 0 0 auto;
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 5px;
+            font-size: 13px;
+            color: #000000;
+            line-height: 18px;
+            vertical-align: top;
+            background-color: #FFEB00;
+            font-weight: normal;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 10px; /* 버튼 사이에 10px의 여백을 추가하였습니다. */
+        }
+
+        #kakaoForm button:hover {
+            background-color: #FFEB3B;
+        }
+    </style>
 </head>
 <body>
+
 <form id="loginForm">
     <label for="email">이메일:</label><br>
     <input type="email" id="email" name="email" required><br>

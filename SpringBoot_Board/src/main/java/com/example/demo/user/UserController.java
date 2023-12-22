@@ -56,13 +56,6 @@ public class UserController {
     }
 
 
-    @GetMapping("/users")
-    public ResponseEntity<Object> printUsers(){
-        userService.findAll();
-
-        return ResponseEntity.ok(ApiUtils.success(null));
-    }
-
     @PostMapping("/oauth")
     public ResponseEntity<Object> connect(@RequestBody @Valid UserRequest.JoinDTO requestDTO, Error error){
         String jwt = userService.authenticateAndCreateToken(requestDTO);
@@ -90,7 +83,7 @@ public class UserController {
         return ResponseEntity.ok(ApiUtils.success(null));
     }
 
-    @GetMapping("/send_user_id")
+    @GetMapping("/send_userid")
     public ResponseEntity<ApiUtils.ApiResult<Long>> getCurrnetUserId(HttpServletRequest req){
         return ResponseEntity.ok(ApiUtils.success(userService.getCurrnetUserId(req.getSession())));
     }

@@ -1,6 +1,7 @@
 ## User연동(2)
 
 - 참고 : https://gksdudrb922.tistory.com/217#JwtTokenProvider
+
 ### UserService
 ```java
 public String login(UserRequest.JoinDTO requestDTO) {
@@ -130,6 +131,7 @@ public User clearTokens(User user){
     return user;
 }
 ```
+
 ### UserController
 ```java
 @GetMapping("/logout")
@@ -137,6 +139,7 @@ public String logout(HttpServletRequest req, Error error){
     return userService.logout(req.getSession());
 }
 ```
+
 - logout기능을 구현을 하지않아서 로그아웃기능 구현(Service,Controller)
 
 - 현재 테스트를 하여서 회원가입은 정상적으로 되는것을 확인후 로그인을 할려고하는데 로그인 비밀번호를 제대로쳤음에도

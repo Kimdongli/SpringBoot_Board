@@ -2,18 +2,68 @@
 <html>
 <head>
     <title>회원가입</title>
+    <style>
+        body {
+            background-color: #354649;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            color: #ffffff;
+        }
+
+        #joinForm {
+            width: 300px;
+            margin: 0 auto;
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #joinForm label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        #joinForm input[type="text"], #joinForm input[type="email"], #joinForm input[type="password"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            margin-bottom: 20px;
+            color: #000000;
+            background-color: #ffffff;
+        }
+
+        #joinForm input[type="submit"] {
+            flex: 0 0 auto;
+            display: block;
+            padding: 4px 14px;
+            border-radius: 5px;
+            font-size: 13px;
+            color: #ffffff;
+            line-height: 18px;
+            vertical-align: top;
+            background-color: #6C7A89;
+            font-weight: normal;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        #joinForm input[type="submit"]:hover {
+            background-color: #AEB6BF;
+        }
+    </style>
+
 </head>
 <body>
+
 <form id="joinForm">
-    <label for="email">이메일:</label><br>
-    <input type="email" id="email" name="email" required><br>
-    <label for="password">비밀번호:</label><br>
-    <input type="password" id="password" name="password" required><br>
-    <label for="name">이름:</label><br>
-    <input type="text" id="name" name="name" required><br>
+    <label for="email">이메일:</label>
+    <input type="email" id="email" name="email" required>
+    <label for="password">비밀번호:</label>
+    <input type="password" id="password" name="password" required>
+    <label for="name">이름:</label>
+    <input type="text" id="name" name="name" required>
     <input type="submit" value="회원가입">
 </form>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('joinForm');

@@ -1,6 +1,6 @@
 ## 스프링부트 이용하여 게시판 만들기
 ---
-## Board V1.5.0
+## Board V2.4.0
 
 ### ※ 개발환경
 \- __aplication.yml__  
@@ -122,12 +122,56 @@
 </div><br>
 
 
-
 ### 파일 다운
 1. 게시물에 첨부한 파일(이미지) 다운로드(/download/{uuid},{filename})
 <div class="centered-image">
   <img src="./image/10.png">
 </div><br>
+
+## ※ 회원가입 및 로그인 기능 구현 설명(kakao RestAPI)
+1. 메인 화면 이동(/)  
+  \- 로그인을하면 로그인한것을 확인후 로그인 후 화면으로 이동  
+  <div class="centered-image">
+    <img src="./image/kakao3.png">
+  </div><br>
+
+### 일반 회원
+1. 로그인(/user/login)
+<div class="centered-image">
+  <img src="./image/kakao1.png">
+</div><br>
+
+2. 회원가입(/user/join)
+<div class="centered-image">
+  <img src="./image/kakao2.png">
+</div><br>
+
+3. 로그아웃(/user/logout)  
+ \- 로그아웃 버튼을누르면 로그아웃
+
+4. 이메일 중복확인(/user/check)
+
+5. 로그인 인증 토큰 발급(/user/oauth)
+
+6. 토큰 갱신(/user/refresh)
+
+7. (세션 기반)연결된 사용자 Id를 반환(/user/send_userid)
+
+8. (Spring Security 기반)인증된 사용자 Id를 반환(/user/user_id)
+
+### 카카오 회원
+1. 카카오톡 인증 토큰 발급(/kakao/oauth)
+
+2. 카카오톡 재로그인(/kakao/relogin)
+
+3. 카카오톡 로그인(/kakao/login)  
+\- 카카오 디벨로퍼에서 설정
+4. 카카오톡 로그아웃(/kakao/logout)
+
+5. 전체 로그아웃(/kakao/flogout)
+
+
+
 
 ---
 
@@ -191,8 +235,10 @@
 \- 유저 로그아웃 기능을 추가하였습니다. (엔드포인트: /user/logout)
 2. __[기능 추가] 사용자 인증 및 JWT 생성 처리__  
 \- 사용자 인증 JWT 토큰을 생성 반환하는 기능을 추가하였습니다.(엔드포인트: /user/oauth)
-3. __[기능 추가] 유저 정보__  
-\- 유저 정보를 들고오는 기능을 추가하였습니다. (엔드포인트: /user/user_id)
+3. __[기능 추가] 유저 ID값 반환(세션기반)__  
+\- 로그인된 유저 Id값을 세션 기반 반환하는 기능 추가하였다. (엔드포인트: /user/user_id)
+4. __[기능 추가] 토큰 갱신__  
+\- access_token유효기간 만료시 대체할 refresh_token 추가하였습니다.(/user/refresh)
 
 ### V2.2.0(2023.12.18)
 1. __[기능 추가] 카카오 회원가입 및 로그인__  
@@ -205,3 +251,19 @@
 \- 카카오 로그인 기능에서 발생하던 오류를 수정하였습니다. (엔드포인트: /kakao/login)  
 2. __[기능 추가] UserService에 refresh_token 추가__   
 \- UserService에 사용자 인증을 유지하기 위한 refresh_token 기능을 추가하였습니다.
+
+### V2.3.1(2023.12.20)
+1. __[기능 수정] 파일 이름 뷰 수정__  
+\- 파일 이름이 뷰에 정확하게 표시되도록 수정하였습니다.
+2. __[기능 수정] 게시판 HTML, JavaScript 수정__  
+\- 게시판의 HTML 및 JavaScript 코드를 전체적으로 수정하였습니다.
+
+### V2.4.0(2023.12.22)
+1. __[기능 추가] 유저 ID값 반환(Security기반)__  
+\- 로그인된 유저 Id값을 Security기반을 반환하는 기능 추가하였다.(엔드포인트: /user/send_userid)
+2. __[기능 수정] 페이징 HTML 수정__  
+\- 페이징 처리를 위한 HTML 코드를 수정하였습니다.
+3. __[기능 수정] 로그인, 회원가입 디자인 수정__  
+\- 로그인 및 회원가입 페이지의 디자인을 수정하였습니다.
+4. __[기능 수정] DTO에 updateTime, createTime 수정__  
+\- DTO에서 사용하는 updateTime, createTime 필드의 처리 방식을 수정하였습니다.

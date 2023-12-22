@@ -1,0 +1,199 @@
+## Board,Comment에 User적용
+
+### paging
+```html
+<div class="container">
+    <div class="text-right mb-3">
+        <button class="btn btn-primary" onclick="create()">글쓰기</button>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>글 번호</th>
+                <th>제목</th>
+                <th>작성일</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:if="${boardList.totalPages == 0}">
+                <td colspan="3">등록된 게시글이 없습니다.</td>
+            </tr>
+            <tr th:each="board : ${boardList}" th:unless="${boardList.totalPages == 0}">
+                <td th:text="${board.id}"></td>
+                <td><a th:href="@{/board/${board.id}(page=${boardList.number + 1})}" th:text="${board.title}"></a></td>
+                <td th:text="${#temporals.format(board.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item" th:class="${boardList.first} ? 'disabled' : ''">
+                <a class="page-link" th:href="${boardList.first} ? '#' : @{/board/paging(page=1)}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li th:each="page : ${#numbers.sequence(startPage, endPage)}" th:class="${page == boardList.number + 1} ? 'page-item active' : 'page-item'">
+                <a th:href="@{/board/paging(page=${page})}" th:text="${page}" class="page-link"></a>
+            </li>
+            <li class="page-item" th:class="${boardList.last} ? 'disabled' : ''">
+                <a class="page-link" th:href="${boardList.last} ? '#' : @{/board/paging(page=${boardList.totalPages})}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<script>
+    const create = () => {
+        location.href = "/board/create";
+    }
+</script>
+```
+- "등록된 게시글이 없습니다." 메시지는 <tbody> 안에 th:if를 사용하여 조건부로 표시되도록 하였다.
+- "처음"과 "마지막" 링크는 &laquo;와 &raquo;를 사용하여 좌우 화살표 아이콘을 사용하였다.
+- "이전"과 "다음"의 링크 활성화/비활성화 상태는 th:class를 사용하여 조건부로 disabled 클래스를 적용하였다.
+- 이렇게 바꿔도 진행이 안되고있는상태이다.(오류코드: {"success":false,"response":null,"error":{"message":"Failed to convert value of type 'java.lang.String' to required type
+ 'java.lang.Long'; nested exception is java.lang.NumberFormatException: For input string:
+ "${board.id}"","status":500}})
+ - 위에 오류는 :클라이언트가 보낸 데이터에서 ${board.id}라는 값이 문자열로 인식되었거나,
+ 혹은 이 값을 서버에서 Long 타입으로 처리하려고 시도하였을 때 발생할 수 있다.
+
+### paging
+```html
+<div class="container">
+    <div class="text-right mb-3">
+        <button class="btn btn-primary" onclick="create()">글쓰기</button>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>글 번호</th>
+            <th>제목</th>
+            <th>작성일</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${boardList.totalPages == 0}">
+            <td colspan="3">
+                <div>등록된 게시글이 없습니다.</div>
+            </td>
+        </tr>
+        <tr th:each="board : ${boardList}" th:unless="${boardList.totalPages == 0}">
+            <td th:text="${board.getId}"></td>
+            <td><a th:href="@{${board.getId}|(page=${boardList.number + 1})}" th:text="${board.getTitle}"></a></td>
+            <td th:text="*{#temporals.format(board.getCreateTime, 'yyyy.MM.dd')}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <nav class="paging-links" aria-label="Page navigation">
+        <ul class="pagination">
+            <li class="page-item" th:class="${boardList.first} ? 'disabled' : ''">
+                <a class="page-link" th:href="${boardList.first} ? '#' : @{/board/paging(page=1)}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="active" th:text="처음"></span>
+                </a>
+            </li>
+            <li th:each="page : ${#numbers.sequence(startPage, endPage)}" th:class="${page == boardList.number + 1} ? 'page-item active' : 'page-item'">
+                <a th:href="@{/board/paging(page=${page})}" th:text="${page}" class="page-link"></a>
+            </li>
+            <li class="page-item" th:class="${boardList.last} ? 'disabled' : ''">
+                <a class="page-link" th:href="${boardList.last} ? '#' : @{/board/paging(page=${boardList.totalPages})}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                    <span class="active" th:text="마지막"></span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+```
+- board는 다get으로 바꾸니깐 성공하였다.
+### UserController
+```java
+@GetMapping("/send_userid")
+public ResponseEntity<ApiUtils.ApiResult<Long>> getCurrnetUserId(HttpServletRequest req){
+    return ResponseEntity.ok(ApiUtils.success(userService.getCurrnetUserId(req.getSession())));
+}
+```
+### UserController
+```java
+public Long getCurrnetUserId(HttpSession session) {
+    return setUserInfoInSession(session).getId();
+}
+```
+- 세션 기반유저 반환은하였지만 Security기반 유저반환은 해주지않았기 떄문에 해주었다
+### Comment
+```java
+@Column(length = 25, nullable = false)
+private LocalDateTime createTime;
+
+@Column(length = 25, nullable = false)
+private LocalDateTime updateTime;
+
+@Builder
+public Comment(Long id, String contents, LocalDateTime createTime, LocalDateTime updateTime, Board board, User user) {
+    this.id = id;
+    this.contents = contents;
+    this.createTime = createTime;
+    this.updateTime = updateTime;
+    this.board = board;
+    this.user = user;
+}
+
+public void updateFromDto(CommentDto commentDto){
+    this.contents = commentDto.getContents();
+    this.updateTime = LocalDateTime.now();
+}
+```
+
+### CommnetDTO
+```java
+    private LocalDateTime createTime;
+    private LocalDateTime updateTime;
+
+    public Comment toEntity(){
+       Comment comment = Comment.builder()
+               .id(id)
+               .createTime(createTime)
+               .updateTime(LocalDateTime.now())
+               .contents(contents)
+               .build();
+       return comment;
+   }
+
+   public static CommentDto toCommentDto(Comment comment){
+       return new CommentDto(
+               comment.getId(),
+               comment.getUser().getName(),
+               comment.getContents(),
+               comment.getCreateTime(),
+               comment.getUpdateTime(),
+               comment.getBoard().getId(),
+               comment.getUser().getId());
+   }
+```
+- Comment,CommentDTO에 updateTime,createTime변수를 따로만들었다.
+ - createTime: 최초 댓글 작성 시간
+ - updateTime: 최근 댓글 수정 시간
+- 일단현재 까지 오류없이 잘시행이된다.
+- 바꿔야할것 :
+ - 서버: update랑delete를 POST로 바꿔야할것같다.
+ - 뷰: login,join,logout 폼꾸미고 잘보이게만듬
+---
+- 발표 포트폴리오:
+깃에다 적어놓기 REST AIP(kakaodevelper참고)
+첨부 이미지로 일부만
+주요기능 개요(이미지)
+아키텍처 및 설계 적은거는 git
+클래스 구조
+뭘상속받아서 어떻게존재하는지
+이슈 발견 확인한 순간부터 어떤 절차를 걸쳐서 완료가 되었는지
+---
+
+## 회고
+- 현재 모든 기능은 동작하는걸 확인하였다.
+- 하면서 어려웠던점:
