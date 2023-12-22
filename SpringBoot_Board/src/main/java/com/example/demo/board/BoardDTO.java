@@ -16,7 +16,6 @@ public class BoardDTO {
 
     private String writer;
 
-
     // ** 제목
     private String title;
 

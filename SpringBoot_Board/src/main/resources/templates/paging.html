@@ -29,21 +29,24 @@
         </thead>
         <tbody>
         <tr th:if="${boardList.totalPages == 0}">
-            <td colspan="3">등록된 게시글이 없습니다.</td>
+            <td colspan="3">
+                <div>등록된 게시글이 없습니다.</div>
+            </td>
         </tr>
         <tr th:each="board : ${boardList}" th:unless="${boardList.totalPages == 0}">
-            <td th:text="${board.id}"></td>
-            <td><a th:href="@{/board/${board.id}(page=${boardList.number + 1})}" th:text="${board.title}"></a></td>
-            <td th:text="${#temporals.format(board.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${board.getId}"></td>
+            <td><a th:href="@{${board.getId}|(page=${boardList.number + 1})}" th:text="${board.getTitle}"></a></td>
+            <td th:text="*{#temporals.format(board.getCreateTime, 'yyyy.MM.dd')}"></td>
         </tr>
         </tbody>
     </table>
 
-    <nav aria-label="Page navigation">
+    <nav class="paging-links" aria-label="Page navigation">
         <ul class="pagination">
             <li class="page-item" th:class="${boardList.first} ? 'disabled' : ''">
                 <a class="page-link" th:href="${boardList.first} ? '#' : @{/board/paging(page=1)}" aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
+                    <span class="active" th:text="처음"></span>
                 </a>
             </li>
             <li th:each="page : ${#numbers.sequence(startPage, endPage)}" th:class="${page == boardList.number + 1} ? 'page-item active' : 'page-item'">
@@ -52,6 +55,7 @@
             <li class="page-item" th:class="${boardList.last} ? 'disabled' : ''">
                 <a class="page-link" th:href="${boardList.last} ? '#' : @{/board/paging(page=${boardList.totalPages})}" aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>
+                    <span class="active" th:text="마지막"></span>
                 </a>
             </li>
         </ul>

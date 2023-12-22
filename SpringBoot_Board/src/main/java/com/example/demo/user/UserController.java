@@ -55,12 +55,14 @@ public class UserController {
         return userService.logout(request.getSession());
     }
 
-    @GetMapping("/check")
+
+    @GetMapping("/users")
     public ResponseEntity<Object> printUsers(){
         userService.findAll();
 
         return ResponseEntity.ok(ApiUtils.success(null));
     }
+
     @PostMapping("/oauth")
     public ResponseEntity<Object> connect(@RequestBody @Valid UserRequest.JoinDTO requestDTO, Error error){
         String jwt = userService.authenticateAndCreateToken(requestDTO);

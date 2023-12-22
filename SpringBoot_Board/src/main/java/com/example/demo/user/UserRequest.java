@@ -55,9 +55,9 @@ public class UserRequest {
             private String platform;
                 public User toEntity() {
                         return User.builder()
-                                .email(this.email)
-                                .password(this.password)
-                                .name(this.name)
+                                .email(email)
+                                .password(password)
+                                .name(name)
                                 .roles(Collections.singletonList("ROLE_USER"))
                                 .access_token(null)
                                 .refresh_token(null)

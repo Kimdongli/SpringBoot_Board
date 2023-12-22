@@ -59,8 +59,7 @@ public class BoardService {
     }
 
     public BoardDTO findById(Long id) {
-        Board board = boardRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("해당 게시글을 찾을 수 없습니다."));
+        Board board = boardRepository.findById(id).get();
         return BoardDTO.toBardDTO(board);
     }
 

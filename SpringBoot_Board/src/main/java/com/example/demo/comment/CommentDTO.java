@@ -1,15 +1,15 @@
 package com.example.demo.comment;
 
-
-import com.example.demo.board.Board;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentDTO {
+public class CommentDto {
 
     private Long id;
 
@@ -17,23 +17,32 @@ public class CommentDTO {
 
     private String contents;
 
+    private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
+
     private Long boardId;
 
     private Long userId;
+
     public Comment toEntity(){
         Comment comment = Comment.builder()
                 .id(id)
+                .createTime(createTime)
+                .updateTime(LocalDateTime.now())
                 .contents(contents)
                 .build();
         return comment;
     }
-     public static CommentDTO toCommentDTO(Comment comment){
-        return new CommentDTO(
+
+    public static CommentDto toCommentDto(Comment comment){
+        return new CommentDto(
                 comment.getId(),
                 comment.getUser().getName(),
                 comment.getContents(),
+                comment.getCreateTime(),
+                comment.getUpdateTime(),
                 comment.getBoard().getId(),
                 comment.getUser().getId());
-     }
-    
+    }
 }
