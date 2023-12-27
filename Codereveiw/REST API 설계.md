@@ -2,6 +2,7 @@
 
 1.회원가입 요청
 
+### 유저
 \- 정보
 
 |메서드|URL|인증 방식|
@@ -57,6 +58,8 @@
 |-|-|
 |ContentType|application/json(데이터 타입)|
 |Authorization|Authorization: Bearer ${access_token}(사용자 인증)|
+
+### 게시판
 
 4.게시판 작성
 
@@ -147,6 +150,8 @@
 |-|-|
 |ContentType|application/json(데이터 타입)|
 |Authorization|Authorization: Bearer ${access_token}(사용자 인증)|
+
+### 댓글
 
 8.댓글 작성
 
