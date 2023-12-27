@@ -185,7 +185,7 @@ public void updateFromDto(CommentDto commentDto){
  - 뷰: login,join,logout 폼꾸미고 잘보이게만듬
 ---
 - 발표 포트폴리오:
-깃에다 적어놓기 REST AIP(kakaodevelper참고)
+깃에다 적어놓기 REST API(kakaodevelper참고)
 첨부 이미지로 일부만
 주요기능 개요(이미지)
 아키텍처 및 설계 적은거는 git

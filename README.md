@@ -3,8 +3,8 @@
 ## Board V2.4.0
 
 ### ※ 개발환경
-\- __aplication.yml__  
 \- __IDE : IDE : InteliJ IDEA Community__  
+\- __Java 11,HTML5__  
 \- __Spring Boot 2.7.6__  
 \- __JDK 11__  
 \- __MySQL 8.0.35__  
@@ -12,6 +12,7 @@
 \- __Spring Web__  
 \- __Spring Data JPA__  
 \- __Thymleaf__
+\- __aplication.yml__  
 
 ---
 
