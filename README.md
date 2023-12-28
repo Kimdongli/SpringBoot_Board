@@ -11,7 +11,7 @@
 \- __Lombok__
 \- __Spring Web__  
 \- __Spring Data JPA__  
-\- __Thymleaf__
+\- __Thymleaf__  
 \- __aplication.yml__  
 
 ---
@@ -51,7 +51,7 @@
 ---
 
 ### ※ 향후 업데이트 예정 기능
-1. __회원가입 및 로그인 기능__  
+1. __회원가입 및 로그인 기능(구현완료)__  
 2. __게시글 검색 기능__  
 3. __추천 버튼(추천 많이받을시 인기 게시물 등록)__
 
@@ -167,6 +167,9 @@
 
 3. 카카오톡 로그인(/kakao/login)  
 \- 카카오 디벨로퍼에서 설정
+<div class="centered-image">
+  <img src="./image/kakao4.png">
+</div><br>
 4. 카카오톡 로그아웃(/kakao/logout)
 
 5. 전체 로그아웃(/kakao/flogout)

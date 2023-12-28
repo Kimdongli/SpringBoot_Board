@@ -75,14 +75,14 @@ public class BoardController {
         return "redirect:/board/paging";
     }
 
-    @GetMapping("/update/{id}")
+    @PostMapping("/update/{id}")
     public String updateForm(@PathVariable Long id, Model model){
         BoardDTO boardDTO =boardService.findById(id);
         model.addAttribute("board",boardDTO);
         return "update";
     }
 
-    @PostMapping("/update")
+    @GetMapping("/update")
     public String update(@ModelAttribute BoardDTO boardDTO,
                          @RequestParam MultipartFile[] files) throws IOException{
         boardService.update(boardDTO,files);
@@ -91,7 +91,7 @@ public class BoardController {
 
     //목록 읽어오는기능
 
-    @GetMapping("/delete/{id}")
+    @PostMapping("/delete/{id}")
     public String delete(@PathVariable Long id){
         boardService.delete(id);
         return "redirect:/board/paging";

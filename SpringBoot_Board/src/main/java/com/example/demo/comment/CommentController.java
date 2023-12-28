@@ -33,14 +33,14 @@ public class CommentController {
         return ResponseEntity.ok().body(comments);
     }
 
-    @GetMapping("/update")
+    @PostMapping("/update")
     public ResponseEntity update(@ModelAttribute CommentDto commentDto){
         commentService.update(commentDto);
 
         return new ResponseEntity<>("댓글이 업데이트 되었습니다.", HttpStatus.OK);
     }
 
-    @GetMapping("/delete/{id}")
+    @PostMapping("/delete/{id}")
     public ResponseEntity delete(@PathVariable Long id){
         commentService.delete(id);
 
