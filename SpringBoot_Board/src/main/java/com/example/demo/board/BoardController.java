@@ -75,14 +75,14 @@ public class BoardController {
         return "redirect:/board/paging";
     }
 
-    @PostMapping("/update/{id}")
+    @GetMapping("/update/{id}")
     public String updateForm(@PathVariable Long id, Model model){
         BoardDTO boardDTO =boardService.findById(id);
         model.addAttribute("board",boardDTO);
         return "update";
     }
 
-    @GetMapping("/update")
+    @PostMapping("/update")
     public String update(@ModelAttribute BoardDTO boardDTO,
                          @RequestParam MultipartFile[] files) throws IOException{
         boardService.update(boardDTO,files);
