@@ -170,11 +170,10 @@
 <div class="centered-image">
   <img src="./image/kakao4.png">
 </div><br>
+
 4. 카카오톡 로그아웃(/kakao/logout)
 
 5. 전체 로그아웃(/kakao/flogout)
-
-
 
 
 ---

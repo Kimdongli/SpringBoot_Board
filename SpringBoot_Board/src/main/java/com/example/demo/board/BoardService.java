@@ -118,7 +118,6 @@ public class BoardService {
         }
     }
 
-
     @Transactional
     public void update(BoardDTO boardDTO, MultipartFile[] files) throws IOException {
         Optional<Board> boardOptional = boardRepository.findById(boardDTO.getId());

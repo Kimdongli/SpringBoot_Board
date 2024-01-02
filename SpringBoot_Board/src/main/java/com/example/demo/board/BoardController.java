@@ -91,6 +91,7 @@ public class BoardController {
 
     //목록 읽어오는기능
 
+    //** Delete
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Long id){
         boardService.delete(id);
