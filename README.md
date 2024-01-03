@@ -3,7 +3,7 @@
 ## Board V2.4.0
 
 ### ※ 개발환경
-\- __IDE : IDE : InteliJ IDEA Community__  
+\- __IDE : InteliJ IDEA Community__  
 \- __Java 11,HTML5__  
 \- __Spring Boot 2.7.6__  
 \- __JDK 11__  
